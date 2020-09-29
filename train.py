@@ -73,7 +73,7 @@ def main():
         np.random.seed(config.RANDOM_SEED)
         np.random.shuffle(indices)
         split = int(np.floor(config.DATASET.VAL_SIZE * num_train))
-        train_idx, val_idx = indices[split:split+1000], indices[:split]
+        train_idx, val_idx = indices[split:split], indices[:split]
         val_dataset.data = val_dataset.data[val_idx]
         dataset.data = dataset.data[train_idx]
 
