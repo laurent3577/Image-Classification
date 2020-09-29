@@ -29,23 +29,27 @@ def parse_args():
 
     return args
 
+def acc(out, target):
+    _, predicted = torch.max(out, 1)
+    total += target.size(0)
+    correct += (predicted == target).sum().item()
+    return correct/total
+
 def val(model, val_loader, loss_fn):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model.eval()
     pbar = tqdm(val_loader)
-    total = 0
-    correct = 0
+    accuracy = 0
     loss = 0
+    total = len(val_loader)
     for img, target in pbar:
         img = img.to(device)
         target = target.to(device)
         out = model(img)
         loss += loss_fn(out,target)
-        _, predicted = torch.max(out.data, 1)
-        total += target.size(0)
-        correct += (predicted == target).sum().item()
-        pbar.set_description('Validation Acc : {0:.2f}'.format(correct/total*100))
-    print("Validation results: Acc: {0:.2f} ({1}/{2})   Loss: {3:.4f}".format(correct/total*100, correct, total, loss/len(val_loader)))
+        accuracy += acc(out, target)
+        pbar.set_description('Validation Acc : {0:.2f}'.format(accuracy*100))
+    print("Validation results: Acc: {0:.2f} ({1}/{2})   Loss: {3:.4f}".format(accuracy/total*100, int(total*accuracy), total, loss/total))
 
 
 def main():
@@ -85,6 +89,7 @@ def main():
     loss_fn = nn.CrossEntropyLoss()
 
     loss_meter = ExpAvgMeter(0.98)
+    acc_meter = ExpAvgMeter(0.98)
     if config.VISDOM:
         plotter = Plotter(log_to_filename=os.path.join(config.OUTPUT_DIR, "logs.viz"))
 
@@ -106,8 +111,10 @@ def main():
                 model_scheduler.step()
 
             loss_meter.update(float(loss.data))
+            accuracy = acc(out, target)
+            acc_meter.update(accuracy)
 
-            pbar.set_description('Train Epoch : {0}/{1} Loss : {2:.4f} '.format(e+1, config.OPTIM.EPOCH, loss_meter.value))
+            pbar.set_description('Train Epoch : {0}/{1} Loss : {2:.4f} Acc : {3:.2f} '.format(e+1, config.OPTIM.EPOCH, loss_meter.value, acc_meter.value))
 
             if config.VISDOM and step%config.PLOT_EVERY == 0:
                 plotter.plot("Loss", step, loss_meter.value, "Loss", "Step", "Value")
