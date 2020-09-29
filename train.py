@@ -31,8 +31,8 @@ def parse_args():
 
 def acc(out, target):
     _, predicted = torch.max(out, 1)
-    total += target.size(0)
-    correct += (predicted == target).sum().item()
+    total = target.size(0)
+    correct = (predicted == target).sum().item()
     return correct/total
 
 def val(model, val_loader, loss_fn):
