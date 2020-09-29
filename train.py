@@ -4,13 +4,13 @@ import os
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
+from torch.utils.data.sampler import SubsetRandomSampler, SequentialSampler, RandomSampler
 from optim import build_opt
 from models import build_model
 from config import config, update_config
 from data import build_dataset, build_transforms
 from utils import ExpAvgMeter, Plotter
 import numpy as np
-
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train  AnoVAEGAN')
@@ -50,8 +50,7 @@ def val(model, val_loader, loss_fn):
         loss += loss_fn(out,target)
         accuracy += acc(out, target)
         total += img.size(0)
-        pbar.set_description('Validation Acc : {0:.2f}'.format(accuracy*100))
-    print("Validation results: Acc: {0:.2f} ({1}/{2})   Loss: {3:.4f}".format(accuracy/nb_batch*100, int(accuracy/nb_batch*100*total), total, loss/nb_batch))
+    print("Validation results: Acc: {0:.2f} ({1}/{2})   Loss: {3:.4f}".format(accuracy/nb_batch*100, int(accuracy/nb_batch*total), total, loss/nb_batch))
 
 
 def main():
@@ -73,6 +72,8 @@ def main():
         ], config)
     dataset = build_dataset(config, split='train', transform=transforms)
     val_dataset = build_dataset(config, split='val', transform=val_transforms)
+    train_sampler = RandomSampler(dataset)
+    val_sampler = SequentialSampler(val_dataset)
     if getattr(val_dataset, "val_from_train", False):
         num_train = len(dataset)
         indices = list(range(num_train))
@@ -80,11 +81,12 @@ def main():
         np.random.shuffle(indices)
         split = int(np.floor(config.DATASET.VAL_SIZE * num_train))
         train_idx, val_idx = indices[split:], indices[:split]
-        val_dataset.data = val_dataset.data[val_idx]
-        dataset.data = dataset.data[train_idx]
+        train_sampler = SubsetRandomSampler(train_idx)
+        val_sampler = SubsetRandomSampler(val_idx)
 
-    train_loader = DataLoader(dataset, batch_size=config.OPTIM.BATCH_SIZE, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=config.OPTIM.BATCH_SIZE, shuffle=False)
+
+    train_loader = DataLoader(dataset, batch_size=config.OPTIM.BATCH_SIZE, sampler=train_sampler)
+    val_loader = DataLoader(val_dataset, batch_size=config.OPTIM.BATCH_SIZE, sampler=val_sampler)
 
     opt, scheduler = build_opt(config, model, len(train_loader))
 
@@ -103,10 +105,11 @@ def main():
             step += 1
             img = img.to(device)
             target = target.to(device)
-            out = model(img)
-            loss =  loss_fn(out, target)
-
             opt.zero_grad()
+
+            out = model(img)
+            loss = loss_fn(out, target)
+
             loss.backward()
             opt.step()
             if scheduler.update_on_step:
