@@ -112,7 +112,7 @@ def main():
 
             loss_meter.update(float(loss.data))
             accuracy = acc(out, target)
-            acc_meter.update(accuracy)
+            acc_meter.update(accuracy*100)
 
             pbar.set_description('Train Epoch : {0}/{1} Loss : {2:.4f} Acc : {3:.2f} '.format(e+1, config.OPTIM.EPOCH, loss_meter.value, acc_meter.value))
 
