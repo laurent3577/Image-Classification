@@ -41,15 +41,17 @@ def val(model, val_loader, loss_fn):
     pbar = tqdm(val_loader)
     accuracy = 0
     loss = 0
-    total = len(val_loader)
+    total = 0
+    nb_batch = len(val_loader)
     for img, target in pbar:
         img = img.to(device)
         target = target.to(device)
         out = model(img)
         loss += loss_fn(out,target)
         accuracy += acc(out, target)
+        total += img.size(0)
         pbar.set_description('Validation Acc : {0:.2f}'.format(accuracy*100))
-    print("Validation results: Acc: {0:.2f} ({1}/{2})   Loss: {3:.4f}".format(accuracy/total*100, int(total*accuracy), total, loss/total))
+    print("Validation results: Acc: {0:.2f} ({1}/{2})   Loss: {3:.4f}".format(accuracy/nb_batch*100, int(accuracy/nb_batch*100*total), total, loss/nb_batch))
 
 
 def main():
@@ -81,10 +83,10 @@ def main():
         val_dataset.data = val_dataset.data[val_idx]
         dataset.data = dataset.data[train_idx]
 
-    train_loader =DataLoader(dataset, batch_size=config.OPTIM.BATCH_SIZE, shuffle=True)
+    train_loader = DataLoader(dataset, batch_size=config.OPTIM.BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=config.OPTIM.BATCH_SIZE, shuffle=False)
 
-    model_opt, model_scheduler = build_opt(config, model, len(train_loader))
+    opt, scheduler = build_opt(config, model, len(train_loader))
 
     loss_fn = nn.CrossEntropyLoss()
 
@@ -102,13 +104,13 @@ def main():
             img = img.to(device)
             target = target.to(device)
             out = model(img)
-            loss =  loss_fn(out,target)
+            loss =  loss_fn(out, target)
 
-            model_opt.zero_grad()
+            opt.zero_grad()
             loss.backward()
-            model_opt.step()
-            if model_scheduler.update_on_step:
-                model_scheduler.step()
+            opt.step()
+            if scheduler.update_on_step:
+                scheduler.step()
 
             loss_meter.update(float(loss.data))
             accuracy = acc(out, target)
@@ -118,10 +120,10 @@ def main():
 
             if config.VISDOM and step%config.PLOT_EVERY == 0:
                 plotter.plot("Loss", step, loss_meter.value, "Loss", "Step", "Value")
-                model_lr = model_opt.param_groups[0]['lr']
-                plotter.plot("LR", step, model_lr, "Model LR", "Step", "Value")
-        if not model_scheduler.update_on_step:
-            model_scheduler.step()
+                lr = opt.param_groups[0]['lr']
+                plotter.plot("LR", step, lr, "Model LR", "Step", "Value")
+        if not scheduler.update_on_step:
+            scheduler.step()
         val(model, val_loader, loss_fn)
         save_path = os.path.join(config.OUTPUT_DIR, config.EXP_NAME + "_checkpoint.pth")
         torch.save({
