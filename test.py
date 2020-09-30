@@ -36,6 +36,8 @@ def main():
 	total = 0
 	with torch.no_grad():
 		for img, target in loader:
+			img = img.to(device)
+			target = target.to(device)
 			outputs = model(img)
 			accuracy += acc(outputs, target)
 			total += outputs.size(0)
