@@ -5,11 +5,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler, SequentialSampler, RandomSampler
-from optim import build_opt
-from models import build_model
-from config import config, update_config
-from data import build_dataset, build_transforms
-from utils import ExpAvgMeter, Plotter
+from src import *
 import numpy as np
 
 def parse_args():
@@ -29,38 +25,13 @@ def parse_args():
 
     return args
 
-def acc(out, target):
-    _, predicted = torch.max(out, 1)
-    total = target.size(0)
-    correct = (predicted == target).sum().item()
-    return correct/total
-
-def val(model, val_loader, loss_fn):
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    model.eval()
-    pbar = tqdm(val_loader)
-    accuracy = 0
-    loss = 0
-    total = 0
-    nb_batch = len(val_loader)
-    for img, target in pbar:
-        img = img.to(device)
-        target = target.to(device)
-        out = model(img)
-        loss += loss_fn(out,target)
-        accuracy += acc(out, target)
-        total += img.size(0)
-    print("Validation results: Acc: {0:.2f} ({1}/{2})   Loss: {3:.4f}".format(accuracy/nb_batch*100, int(accuracy/nb_batch*total), total, loss/nb_batch))
-
 
 def main():
     args = parse_args()
     if not os.path.exists(config.OUTPUT_DIR):
         os.makedirs(config.OUTPUT_DIR)
     print(config)
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model = build_model(config)
-    model.to(device)
 
     transforms = build_transforms([
         ("Resize", {"size": config.DATASET.INPUT_SIZE}),
@@ -91,47 +62,10 @@ def main():
     opt, scheduler = build_opt(config, model, len(train_loader))
 
     loss_fn = nn.CrossEntropyLoss()
+    hooks = build_hooks(config)
+    trainer = Trainer(model, train_loader, val_loader, opt, scheduler, loss_fn, hooks, config)
 
-    loss_meter = ExpAvgMeter(0.98)
-    acc_meter = ExpAvgMeter(0.98)
-    if config.VISDOM:
-        plotter = Plotter(log_to_filename=os.path.join(config.OUTPUT_DIR, "logs.viz"))
-
-    step = 0
-    for e in range(config.OPTIM.EPOCH):
-        model.train()
-        pbar = tqdm(train_loader)
-        for img, target in pbar:
-            step += 1
-            img = img.to(device)
-            target = target.to(device)
-            opt.zero_grad()
-
-            out = model(img)
-            loss = loss_fn(out, target)
-
-            loss.backward()
-            opt.step()
-            if scheduler.update_on_step:
-                scheduler.step()
-
-            loss_meter.update(float(loss.data))
-            accuracy = acc(out, target)
-            acc_meter.update(accuracy*100)
-
-            pbar.set_description('Train Epoch : {0}/{1} Loss : {2:.4f} Acc : {3:.2f} '.format(e+1, config.OPTIM.EPOCH, loss_meter.value, acc_meter.value))
-
-            if config.VISDOM and step%config.PLOT_EVERY == 0:
-                plotter.plot("Loss", step, loss_meter.value, "Loss", "Step", "Value")
-                lr = opt.param_groups[0]['lr']
-                plotter.plot("LR", step, lr, "Model LR", "Step", "Value")
-        if not scheduler.update_on_step:
-            scheduler.step()
-        val(model, val_loader, loss_fn)
-        save_path = os.path.join(config.OUTPUT_DIR, config.EXP_NAME + "_checkpoint.pth")
-        torch.save({
-            'cfg':config,
-            'params':model.state_dict()}, save_path)
+    trainer.train(epoch=config.OPTIM.EPOCH)
 
 
 if __name__ == '__main__':
