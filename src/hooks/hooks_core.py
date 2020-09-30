@@ -20,6 +20,10 @@ class Hook():
 		return
 	def train_end(self):
 		return
+	def val_being(self):
+		return
+	def val_end(self):
+		return
 
 class Validation(Hook):
 	def val_begin(self):
