@@ -80,9 +80,9 @@ class Trainer():
 
     def save_ckpt(self, name=None):
         if name is None:
-            save_path = os.path.join(config.OUTPUT_DIR, "_".join([config.EXP_NAME, "checkpoint.pth"]))
+            save_path = os.path.join(self.config.OUTPUT_DIR, "_".join([self.config.EXP_NAME, "checkpoint.pth"]))
         else:
-            save_path = os.path.join(config.OUTPUT_DIR, "_".join([config.EXP_NAME, name]))
+            save_path = os.path.join(self.config.OUTPUT_DIR, "_".join([self.config.EXP_NAME, name]))
         torch.save({
                 'cfg':self.config,
                 'params': self.model.state_dict()
