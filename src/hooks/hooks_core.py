@@ -45,7 +45,7 @@ class Validation(Hook):
 			self.total,
 			self.loss/self.nb_batch))
 		self.trainet.to_plot.append(["Loss", self.trainer.step, self.loss/self.nb_batch, "Val Loss", "Step", "Value"])
-		self.trainet.to_plot.append(["Acc", self.trainer.step, self.accuracy/self.nb_batch*100,, "Val Acc", "Step", "Value"])
+		self.trainet.to_plot.append(["Acc", self.trainer.step, self.accuracy/self.nb_batch*100, "Val Acc", "Step", "Value"])
 
 class Logging(Hook):
 	def train_begin(self):
