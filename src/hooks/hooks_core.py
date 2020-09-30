@@ -20,7 +20,7 @@ class Hook():
 		return
 	def train_end(self):
 		return
-	def val_being(self):
+	def val_begin(self):
 		return
 	def val_end(self):
 		return
