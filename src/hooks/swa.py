@@ -3,7 +3,7 @@ from torch.optim import swa_utils
 from copy import deepcopy
 
 class SWA(Hook):
-    def __init__(self, epoch_start, swa_lr):
+    def __init__(self, epoch_start, swa_lr, anneal_epoch):
         self.epoch_start = epoch_start
         self.swa_lr = swa_lr
         self.anneal_epoch = anneal_epoch
