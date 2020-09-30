@@ -50,7 +50,7 @@ class Validation(Hook):
 class Logging(Hook):
 	def train_begin(self):
 		if self.trainer.config.PLOT:
-			self.plotter = Plotter(log_dir=self.trainer.config.OUTPUT_DIR, visdom=self.trainer.config.VISDOM)
+			self.plotter = Plotter(log_dir=os.path.join(self.trainer.config.OUTPUT_DIR, "logs"), visdom=self.trainer.config.VISDOM)
 			self.trainer.to_plot = []
 		self.loss_meter = ExpAvgMeter(0.98)
 		self.acc_meter = ExpAvgMeter(0.98)
