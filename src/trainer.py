@@ -31,9 +31,10 @@ class Trainer():
     def _process_epoch(self):
         if self.in_train:
             self.model.train()
+            self.pbar = tqdm(self.train_loader)
         else:
             self.model.eval()
-        self.pbar = tqdm(self.train_loader)
+            self.pbar = tqdm(self.val_loader)
         for img, target in self.pbar:
             self.step += 1
             self.input = img.to(self.device)

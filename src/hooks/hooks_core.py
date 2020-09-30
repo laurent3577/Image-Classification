@@ -41,7 +41,7 @@ class Validation(Hook):
 	def val_end(self):
 		print("Validation results: Acc: {0:.2f} ({1}/{2})   Loss: {3:.4f}".format(
 			self.accuracy/self.nb_batch*100,
-			int(self.accuracy/self.nb_batch*total),
+			int(self.accuracy/self.nb_batch*self.total),
 			self.total,
 			self.loss/self.nb_batch))
 
