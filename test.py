@@ -1,5 +1,6 @@
 import torch
 import argparse
+from tqdm import tqdm
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SequentialSampler
 from src import build_model, build_transforms, build_dataset, acc
@@ -35,14 +36,14 @@ def main():
 	accuracy = 0
 	total = 0
 	with torch.no_grad():
-		for img, target in loader:
+		for img, target in tqdm(loader):
 			img = img.to(device)
 			target = target.to(device)
 			outputs = model(img)
 			accuracy += acc(outputs, target)
 			total += outputs.size(0)
 
-	print("Test Results\n------------\nAccuracy: {.2f} ({}/{})".format(accuracy/len(loader)*100, int(accuracy/len(loader)*total), total))
+	print("Test Results\n------------\nAccuracy: {0.2f} ({1}/{2})".format(accuracy/len(loader)*100, int(accuracy/len(loader)*total), total))
 
 
 if __name__ == '__main__':
