@@ -35,7 +35,8 @@ class Trainer():
             self.model.eval()
             self.pbar = tqdm(self.val_loader)
         for img, target in self.pbar:
-            self.step += 1
+            if self.in_train:
+                self.step += 1
             self.input = img.to(self.device)
             self.target = target.to(self.device)
             self._hook('batch_begin')
