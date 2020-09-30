@@ -9,7 +9,7 @@ from src import *
 import numpy as np
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Train  AnoVAEGAN')
+    parser = argparse.ArgumentParser(description='Train  Classification Model')
 
     parser.add_argument('--cfg',
                         help='experiment configure file name',
