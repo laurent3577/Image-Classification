@@ -43,7 +43,7 @@ def main():
 			accuracy += acc(outputs, target)
 			total += outputs.size(0)
 
-	print("Test Results\n------------\nAccuracy: {0.2f} ({1}/{2})".format(accuracy/len(loader)*100, int(accuracy/len(loader)*total), total))
+	print("Test Results\n------------\nAccuracy: {0:.2f} ({1}/{2})".format(accuracy/len(loader)*100, int(accuracy/len(loader)*total), total))
 
 
 if __name__ == '__main__':
