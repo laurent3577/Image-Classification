@@ -23,4 +23,5 @@ class SWA(Hook):
         swa_utils.update_bn(self.trainer.train_loader, self.swa_model, self.trainer.device)
         # Copying parameters back to original model
         self.trainer.model = deepcopy(self.swa_model.module)
+        print("Validation results with SWA weights")
         self.trainer.val()
