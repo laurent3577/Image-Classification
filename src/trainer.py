@@ -70,7 +70,7 @@ class Trainer():
             torch.save({
                 'cfg':self.config,
                 'params': self.model.state_dict()
-                }, save_path)
+                }, self.save_path)
             self.epoch += 1
         self.hook('train_end')
 
