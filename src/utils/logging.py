@@ -8,18 +8,15 @@ VISDOM_PORT = os.environ.get('VISDOM_PORT', default=8097)
 class ExpAvgMeter():
     def __init__(self, coeff):
         self.coeff = coeff
-        self.mv_avg = 0
         self.value = 0
         self.iter = 0
 
     def update(self, value):
         self.iter += 1
         if self.iter==1:
-            self.mv_avg = value
             self.value = value
         else:
-            self.mv_avg = self.coeff * self.mv_avg + (1-self.coeff) * value
-            self.value = self.mv_avg / (1-self.coeff**self.iter)
+            self.value = self.coeff * self.value + (1-self.coeff) * value
 
 class Plotter(object):
     def __init__(self, log_dir='/tmp/', visdom=False):
