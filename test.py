@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SequentialSampler
-from .utils import acc
+from src import build_model, build_transforms, build_dataset, acc
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Test Classification Model')
@@ -30,11 +30,11 @@ def main():
 	model.eval()
 	accuracy = 0
 	total = 0
-
-	for img, target in loader:
-		outputs = model(img)
-		accuracy += acc(outputs, target)
-		total += outputs.size(0)
+	with torch.no_grad():
+		for img, target in loader:
+			outputs = model(img)
+			accuracy += acc(outputs, target)
+			total += outputs.size(0)
 
 	print("Test Results\n------------\nAccuracy: {.2f} ({}/{})".format(accuracy/len(loader)*100, int(accuracy/len(loader)*total), total))
 
