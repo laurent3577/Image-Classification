@@ -18,6 +18,7 @@ def parse_args():
     return args
 
 def main():
+	print("Testing...")
 	args = parse_args()
 	data = torch.load(args.save_path)
 	params = data['params']
@@ -26,6 +27,7 @@ def main():
 	model = build_model(config)
 	model = model.to(device)
 	model.load_state_dict(params)
+	print("Model loaded from: {}".format(args.save_path))
 	transforms = build_transforms([("Resize", {"size": config.DATASET.INPUT_SIZE})], config)
 
 	dataset = build_dataset(config, split='test', transform=transforms)
