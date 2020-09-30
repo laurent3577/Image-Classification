@@ -16,6 +16,7 @@ class SWA(Hook):
 
     def epoch_end(self):
         if self.trainer.epoch > self.epoch_start:
+            self.trainer.lr_scheduler.update_on_step = False
             self.swa_model.update_parameters(self.trainer.model)
             self.swa_scheduler.step()
 
