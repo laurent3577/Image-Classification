@@ -14,8 +14,7 @@ class Trainer():
         self.step = 0
         self.config = config
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-        self.model.to(self.device)
-        self.save_path = os.path.join(config.OUTPUT_DIR, config.EXP_NAME + "_checkpoint.pth")
+        self.model = self.model.to(self.device)
 
     def _register_hooks(self, hooks):
         self.hooks = hooks
@@ -67,12 +66,10 @@ class Trainer():
                 self.val()
             if not self.scheduler.update_on_step:
                 self.scheduler.step()
-            torch.save({
-                'cfg':self.config,
-                'params': self.model.state_dict()
-                }, self.save_path)
+            self.save_ckpt()
             self.epoch += 1
-        self.hook('train_end')
+        self._hook('train_end')
+        self.save_ckpt("final.pth")
 
     def val(self):
         self.in_train = False
@@ -80,3 +77,14 @@ class Trainer():
         with torch.no_grad():
             self._process_epoch()
         self._hook('val_end')
+
+    def save_ckpt(self, name=None):
+        if name is None:
+            save_path = os.path.join(config.OUTPUT_DIR, "_".join([config.EXP_NAME, "checkpoint.pth"]))
+        else:
+            save_path = os.path.join(config.OUTPUT_DIR, "_".join([config.EXP_NAME, name]))
+        torch.save({
+                'cfg':self.config,
+                'params': self.model.state_dict()
+                }, save_path)
+
