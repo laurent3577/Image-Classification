@@ -41,6 +41,12 @@ _C.DEBUG.USE = True
 _C.DEBUG.DEBUG_EVERY = 100
 _C.DEBUG.DETECT_THRESH = 0.3
 _C.DEBUG.SAVE_SIZE = 128
+### SWA
+_C.SWA = CN()
+_C.SWA.USE = False
+_C.SWA.EPOCH_START = 5
+_C.SWA.ANNEAL_EPOCH = 0.5
+_C.SWA.LR = 0.00001
 
 def update_config(cfg, args):
     cfg.defrost()

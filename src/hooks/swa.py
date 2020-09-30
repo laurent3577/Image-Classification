@@ -6,10 +6,13 @@ class SWA(Hook):
 	def __init__(self, epoch_start, swa_lr):
 		self.epoch_start = epoch_start
 		self.swa_lr = swa_lr
+		self.anneal_epoch = anneal_epoch
 
 	def train_begin(self):
 		self.swa_model = swa_utils.AveragedModel(self.trainer.model)
-		self.swa_scheduler = swa_utils.SWALR(self.trainer.optim, swa_lr=self.swa_lr)
+		swa_epochs = self.trainer.config.OPTIM.EPOCH - self.epoch_start
+		anneal_epoch = int(swa_epochs*self.anneal_epoch)
+		self.swa_scheduler = swa_utils.SWALR(self.trainer.optim, swa_lr=self.swa_lr, anneal_epoch=anneal_epoch)
 
 	def epoch_end(self):
 		if self.trainer.epoch > self.epoch_start:
