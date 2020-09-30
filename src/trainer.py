@@ -76,5 +76,6 @@ class Trainer():
     def val(self):
         self.in_train = False
         self._hook('val_begin')
-        self._process_epoch()
+        with torch.no_grad():
+            self._process_epoch()
         self._hook('val_end')

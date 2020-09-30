@@ -53,17 +53,18 @@ class Logging(Hook):
 		self.acc_meter = ExpAvgMeter(0.98)
 
 	def batch_end(self):
-		self.loss_meter.update(float(self.trainer.loss.data))
-		accuracy = acc(self.trainer.output, self.trainer.target)
-		self.acc_meter.update(accuracy*100)
-		self.trainer.pbar.set_description(
-			'Train Epoch : {0}/{1} Loss : {2:.4f} Acc : {3:.2f} '.format(
-				self.trainer.epoch,
-				self.trainer.config.OPTIM.EPOCH,
-				self.loss_meter.value,
-				self.acc_meter.value))
-		if self.trainer.config.VISDOM and self.trainer.step % self.trainer.config.PLOT_EVERY == 0:
-			self.plotter.plot("Loss", self.trainer.step, self.loss_meter.value, "Loss", "Step", "Value")
-			lr = self.trainer.optim.param_groups[0]['lr']
-			self.plotter.plot("LR", self.trainer.step, lr, "LR", "Step", "Value")
+		if self.trainer.in_train:
+			self.loss_meter.update(float(self.trainer.loss.data))
+			accuracy = acc(self.trainer.output, self.trainer.target)
+			self.acc_meter.update(accuracy*100)
+			self.trainer.pbar.set_description(
+				'Train Epoch : {0}/{1} Loss : {2:.4f} Acc : {3:.2f} '.format(
+					self.trainer.epoch,
+					self.trainer.config.OPTIM.EPOCH,
+					self.loss_meter.value,
+					self.acc_meter.value))
+			if self.trainer.config.VISDOM and self.trainer.step % self.trainer.config.PLOT_EVERY == 0:
+				self.plotter.plot("Loss", self.trainer.step, self.loss_meter.value, "Loss", "Step", "Value")
+				lr = self.trainer.optim.param_groups[0]['lr']
+				self.plotter.plot("LR", self.trainer.step, lr, "LR", "Step", "Value")
 
