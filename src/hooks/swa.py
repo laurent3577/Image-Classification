@@ -20,6 +20,7 @@ class SWA(Hook):
             self.swa_scheduler.step()
 
     def train_end(self):
-        swa_utils.update_bn(self.trainer.train_loader, self.swa_model)
+        swa_utils.update_bn(self.trainer.train_loader, self.swa_model, self.trainer.device)
         # Copying parameters back to original model
         self.trainer.model = deepcopy(self.swa_model.module)
+        self.trainer.val()
