@@ -1,5 +1,6 @@
 from .resnet import *
 from .densenet import *
+from .efficientnet import *
 
 def build_model(config):
 	if config.MODEL.NAME == "resnet18":
@@ -22,5 +23,21 @@ def build_model(config):
 		return densenet169(config.MODEL.PRETRAINED, num_classes=config.MODEL.NUM_CLASSES)
 	elif config.MODEL.NAME == "densenet201":
 		return densenet201(config.MODEL.PRETRAINED, num_classes=config.MODEL.NUM_CLASSES)
+	elif config.MODEL.NAME == "efficientnet-b0":
+		return efficientnet_b0(config.MODEL.PRETRAINED, num_classes=config.MODEL.NUM_CLASSES)
+	elif config.MODEL.NAME == "efficientnet-b1":
+		return efficientnet_b1(config.MODEL.PRETRAINED, num_classes=config.MODEL.NUM_CLASSES)
+	elif config.MODEL.NAME == "efficientnet-b2":
+		return efficientnet_b2(config.MODEL.PRETRAINED, num_classes=config.MODEL.NUM_CLASSES)
+	elif config.MODEL.NAME == "efficientnet-b3":
+		return efficientnet_b3(config.MODEL.PRETRAINED, num_classes=config.MODEL.NUM_CLASSES)
+	elif config.MODEL.NAME == "efficientnet-b4":
+		return efficientnet_b4(config.MODEL.PRETRAINED, num_classes=config.MODEL.NUM_CLASSES)
+	elif config.MODEL.NAME == "efficientnet-b5":
+		return efficientnet_b5(config.MODEL.PRETRAINED, num_classes=config.MODEL.NUM_CLASSES)
+	elif config.MODEL.NAME == "efficientnet-b6":
+		return efficientnet_b6(config.MODEL.PRETRAINED, num_classes=config.MODEL.NUM_CLASSES)
+	elif config.MODEL.NAME == "efficientnet-b7":
+		return efficientnet_b7(config.MODEL.PRETRAINED, num_classes=config.MODEL.NUM_CLASSES)
 	else:
 		raise ValueError("Not supported model: {}".format(config.MODEL.NAME))
