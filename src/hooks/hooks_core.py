@@ -66,11 +66,11 @@ class Logging(Hook):
 					self.trainer.config.OPTIM.EPOCH,
 					self.loss_meter.value,
 					self.acc_meter.value))
-			self.trainer.to_plot.append(["Loss", self.trainer.step, self.loss_meter.value, "Train Loss", "Step", "Value"])
-			self.trainer.to_plot.append(["Acc", self.trainer.step, self.acc_meter.value, "Train Acc", "Step", "Value"])
-			lr = self.trainer.optim.param_groups[0]['lr']
-			self.trainer.to_plot.append(["LR", self.trainer.step, lr, "LR", "Step", "Value"])
 			if self.trainer.config.PLOT and self.trainer.step % self.trainer.config.PLOT_EVERY == 0:
+				self.trainer.to_plot.append(["Loss", self.trainer.step, self.loss_meter.value, "Train Loss", "Step", "Value"])
+				self.trainer.to_plot.append(["Acc", self.trainer.step, self.acc_meter.value, "Train Acc", "Step", "Value"])
+				lr = self.trainer.optim.param_groups[0]['lr']
+				self.trainer.to_plot.append(["LR", self.trainer.step, lr, "LR", "Step", "Value"])
 				self._plot()
 
 	def _plot(self):
