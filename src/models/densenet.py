@@ -214,7 +214,7 @@ def _load_state_dict(model, model_url, progress):
             del state_dict[key]
     del state_dict['classifier.weight']
     del state_dict['classifier.bias']
-    model.load_state_dict(state_dict, strict=False)
+    model.load_state_dict(state_dict, strict=True)
 
 
 def _densenet(arch, growth_rate, block_config, num_init_features, pretrained, progress,
