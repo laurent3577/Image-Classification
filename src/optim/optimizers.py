@@ -43,6 +43,11 @@ def build_lr_scheduler(optimizer, config, steps_per_epoch):
                 T_max=config.OPTIM.EPOCH*steps_per_epoch,
                 eta_min=config.OPTIM.SCHEDULER.COSINE_LR_MIN)
         scheduler.update_on_step = True
+    elif config.OPTIM.SCHEDULER.TYPE == "Exp":
+        scheduler = optim.lr_scheduler.ExponentialLR(
+                optimizer,
+                gamma=config.OPTIM.SCHEDULER.GAMMA)
+        scheduler.update_on_step = True
     elif config.OPTIM.SCHEDULER.TYPE == "OneCycle":
         # For OneCycle scheduler:
         # max_lr = base_lr * gamma

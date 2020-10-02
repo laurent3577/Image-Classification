@@ -1,6 +1,9 @@
 from tqdm import tqdm
+from torch import optim
+from .hooks import EarlyStop, LRCollect, LossCollect
 import torch
 import os
+import matplotlib.pyplot as plt
 
 class Trainer():
     def __init__(self, model, train_loader, val_loader, optim, scheduler, loss_fn, hooks, config):
@@ -20,6 +23,19 @@ class Trainer():
         self.hooks = hooks
         for hk in self.hooks:
             hk.trainer = self
+
+    def _add_hook(self, hook, index=None):
+        hook.trainer = self
+        if index is None:
+            index = len(self.hooks) + 1
+        self.hooks.insert(index, hook)
+
+    def _add_hooks(self, hooks, indexes=None):
+        if indexes is None:
+            indexes = [None for i in range(len(hooks))]
+        assert len(hooks) == len(indexes)
+        for hook, index in zip(hook, indexes):
+            self._add_hook(hook, index)
 
     def _hook(self, method):
         out = False
@@ -42,6 +58,8 @@ class Trainer():
             self._hook('batch_begin')
             self._process_batch()
             self._hook('batch_end')
+            if self._hook('stop_epoch'):
+                return
 
     def _process_batch(self):
         self.optim.zero_grad()
@@ -69,6 +87,10 @@ class Trainer():
                 self.scheduler.step()
             self.save_ckpt()
             self.epoch += 1
+            if self._hook('stop_train'):
+                self._hook('train_end')
+                self.save_ckpt("final.pth")
+                return
         self._hook('train_end')
         self.save_ckpt("final.pth")
 
@@ -78,6 +100,22 @@ class Trainer():
         with torch.no_grad():
             self._process_epoch()
         self._hook('val_end')
+
+    def lr_finder(self):
+        self.scheduler = optim.lr_scheduler.ExponentialLR(
+            self.optim, gamma=1.03753)
+        self.scheduler.update_on_step = True
+        self._add_hooks([
+            EarlyStop(stop_iter=500),
+            LRCollect('list'),
+            LossCollect('list')])
+        self.train(epoch=500)
+        lrs = self.trainer.state['LR_list']
+        loss = self.trainer.state['Loss_list']
+        plt.plot(lrs, loss)
+        plt.xscale('log')
+        plt.show()
+
 
     def save_ckpt(self, name=None):
         if name is None:

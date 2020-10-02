@@ -14,9 +14,13 @@ class Hook():
 		return
 	def batch_end(self):
 		return
+	def stop_epoch(self):
+		return
 	def epoch_end(self):
 		return
 	def skip_val(self):
+		return
+	def stop_train(self):
 		return
 	def train_end(self):
 		return
@@ -52,25 +56,19 @@ class Logging(Hook):
 		if self.trainer.config.PLOT:
 			self.plotter = Plotter(log_dir=os.path.join(self.trainer.config.OUTPUT_DIR, "logs"), visdom=self.trainer.config.VISDOM)
 			self.trainer.to_plot = []
-		self.loss_meter = ExpAvgMeter(0.98)
-		self.acc_meter = ExpAvgMeter(0.98)
 
 	def batch_end(self):
 		if self.trainer.in_train:
-			self.loss_meter.update(float(self.trainer.loss.data))
-			accuracy = acc(self.trainer.output, self.trainer.target)
-			self.acc_meter.update(accuracy*100)
 			self.trainer.pbar.set_description(
 				'Train Epoch : {0}/{1} Loss : {2:.4f} Acc : {3:.2f} '.format(
 					self.trainer.epoch,
 					self.trainer.config.OPTIM.EPOCH,
-					self.loss_meter.value,
-					self.acc_meter.value))
+					self.trainer.state['Loss_last'],
+					self.trainer.state['Acc_last']))
 			if self.trainer.config.PLOT and self.trainer.step % self.trainer.config.PLOT_EVERY == 0:
-				self.trainer.to_plot.append(["Loss", self.trainer.step, self.loss_meter.value, "Train Loss", "Step", "Value"])
-				self.trainer.to_plot.append(["Acc", self.trainer.step, self.acc_meter.value, "Train Acc", "Step", "Value"])
-				lr = self.trainer.optim.param_groups[0]['lr']
-				self.trainer.to_plot.append(["LR", self.trainer.step, lr, "LR", "Step", "Value"])
+				self.trainer.to_plot.append(["Loss", self.trainer.step, self.trainer.state['Loss_last'], "Train Loss", "Step", "Value"])
+				self.trainer.to_plot.append(["Acc", self.trainer.step, self.trainer.state['Acc_last'], "Train Acc", "Step", "Value"])
+				self.trainer.to_plot.append(["LR", self.trainer.step, self.trainer.state['LR_last'], "LR", "Step", "Value"])
 				self._plot()
 
 	def _plot(self):
@@ -81,3 +79,66 @@ class Logging(Hook):
 	def val_end(self):
 		self._plot()
 
+class EarlyStop(Hook):
+	"""
+	Allows to stop training after certain number of iterations or epoch.
+	Number of iterations / epoch processed will be exactly stop_iter or
+	stop_epoch.
+	"""
+	def __init__(self, stop_iter=None, stop_epoch=None):
+		assert (stop_iter is not None) or (stop_epoch is not None)
+		self.stop_iter = stop_iter
+		self.stop_epoch = stop_epoch
+	def stop_epoch(self):
+		if self.stop_iter is not None:
+			return self.trainer.step >= self.stop_iter
+	def stop_train(self):
+		if self.stop_epoch is not None:
+			return self.trainer.epoch > self.stop_epoch
+		else:
+			return self.trainer.step >= self.stop_iter
+
+class Collect(Hook):
+	def __init__(self, collect_type):
+		self.collect_type = collect_type
+
+	def train_begin(self):
+		if getattr(self.trainer, 'state', False):
+			self.trainer.state = {}
+
+	def batch_end(self):
+		self._update(self._collect())
+
+	def _update(self, k, v):
+		if collect_type = 'list':
+			if k in self.trainer.state:
+				self.trainer.state[k].append(v)
+			else:
+				self.trainer.state[k] = [v]
+		elif collect_type = 'last':
+			self.trainer.state[k] = v
+
+	def _collect(self):
+		return None, None
+
+class LRCollect(Collect):
+	def _collect(self):
+		lr = self.trainer.optim.param_groups[0]['lr']
+		return 'LR_{}'.format(self.collect_type), lr
+
+class LossCollect(Collect):
+	def __init__(self, collect_type='last'):
+		super(LossCollect, self).__init__(collect_type)
+		self.meter = ExpAvgMeter(0.98)
+	def _collect(self):
+		self.meter.update(float(self.trainer.loss.data))
+		return 'Loss_{}'.format(self.collect_type), self.meter.value
+
+class AccCollect(Collect):
+	def __init__(self, collect_type='last'):
+		super(AccCollect, self).__init__(collect_type)
+		self.meter = ExpAvgMeter(0.98)
+	def _collect(self):
+		accuracy = acc(self.trainer.output, self.trainer.target)
+		self.meter.update(accuracy*100)
+		return 'Acc_{}'.format(self.collect_type), self.meter.value
