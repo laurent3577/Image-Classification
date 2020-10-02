@@ -110,7 +110,7 @@ class Trainer():
             self.optim, gamma=1.03753)
         self.scheduler.update_on_step = True
         self._add_hooks([
-            EarlyStop(stop_iter=500),
+            EarlyStop(iter_stop=500),
             LRCollect('list'),
             LossCollect('list')])
         self.train(epoch=500)
