@@ -110,7 +110,7 @@ class Trainer():
     def lr_finder(self, min_lr=1e-7, max_lr=10, nb_iter=500):
         self.config.defrost()
         self.config.OPTIM.BASE_LR = min_lr
-        self.config.OPTIM.SCHEDULER.GAMMA = np.exp(np.log(max_lr/min_lr)/nb_iter)
+        self.config.OPTIM.SCHEDULER.GAMMA = float(np.exp(np.log(max_lr/min_lr)/nb_iter))
         self.config.OPTIM.SCHEDULER.TYPE = "Exp"
         self.config.freeze()
         self.optim, self.scheduler = build_opt(self.config, self.model, len(self.train_loader))
