@@ -127,6 +127,8 @@ class Collect(Hook):
         return None, None
 
 class LRCollect(Collect):
+    def __init__(self, collect_type='last'):
+        super(LRCollect, self).__init__(collect_type)
     def _collect(self):
         lr = self.trainer.optim.param_groups[0]['lr']
         return 'LR_{}'.format(self.collect_type), lr
