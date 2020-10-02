@@ -99,6 +99,8 @@ class EarlyStop(Hook):
             return self.trainer.epoch > self.epoch_stop
         else:
             return self.trainer.step >= self.iter_stop
+    def skip_val(self):
+        return True
 
 class Collect(Hook):
     def __init__(self, collect_type):
