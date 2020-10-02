@@ -114,8 +114,8 @@ class Trainer():
             LRCollect('list'),
             LossCollect('list')])
         self.train(epoch=500)
-        lrs = self.trainer.state['LR_list']
-        loss = self.trainer.state['Loss_list']
+        lrs = self.state['LR_list']
+        loss = self.state['Loss_list']
         plt.plot(lrs, loss)
         plt.xscale('log')
         plt.show()
