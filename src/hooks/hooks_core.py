@@ -84,21 +84,21 @@ class Logging(Hook):
 class EarlyStop(Hook):
     """
     Allows to stop training after certain number of iterations or epoch.
-    Number of iterations / epoch processed will be exactly stop_iter or
-    stop_epoch.
+    Number of iterations / epoch processed will be exactly iter_stop or
+    epoch_stop.
     """
-    def __init__(self, stop_iter=None, stop_epoch=None):
-        assert (stop_iter is not None) or (stop_epoch is not None)
-        self.stop_iter = stop_iter
-        self.stop_epoch = stop_epoch
+    def __init__(self, iter_stop=None, epoch_stop=None):
+        assert (iter_stop is not None) or (epoch_stop is not None)
+        self.iter_stop = iter_stop
+        self.epoch_stop = epoch_stop
     def stop_epoch(self):
-        if self.stop_iter is not None:
-            return self.trainer.step >= self.stop_iter
+        if self.iter_stop is not None:
+            return self.trainer.step >= self.iter_stop
     def stop_train(self):
-        if self.stop_epoch is not None:
-            return self.trainer.epoch > self.stop_epoch
+        if self.epoch_stop is not None:
+            return self.trainer.epoch > self.epoch_stop
         else:
-            return self.trainer.step >= self.stop_iter
+            return self.trainer.step >= self.iter_stop
 
 class Collect(Hook):
     def __init__(self, collect_type):
