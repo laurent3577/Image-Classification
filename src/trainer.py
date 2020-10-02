@@ -40,7 +40,11 @@ class Trainer():
     def _hook(self, method):
         out = False
         for hk in self.hooks:
-            out = out or getattr(hk, method)()
+            try:
+                out = out or getattr(hk, method)()
+            except:
+                print("Failed to apply {} on {}".format(method, hk))
+                raise
         return out
 
     def _process_epoch(self):

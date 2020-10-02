@@ -2,6 +2,8 @@ import os
 from ..utils import *
 
 class Hook():
+	def __str__(self):
+        return type(self).__name__
 	def train_begin(self):
 		return
 	def epoch_begin(self):
