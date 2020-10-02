@@ -103,7 +103,7 @@ class Collect(Hook):
 		self.collect_type = collect_type
 
 	def train_begin(self):
-		if getattr(self.trainer, 'state', False):
+		if not getattr(self.trainer, 'state', False):
 			self.trainer.state = {}
 
 	def batch_end(self):
