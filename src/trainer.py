@@ -34,7 +34,7 @@ class Trainer():
         if indexes is None:
             indexes = [None for i in range(len(hooks))]
         assert len(hooks) == len(indexes)
-        for hook, index in zip(hook, indexes):
+        for hook, index in zip(hooks, indexes):
             self._add_hook(hook, index)
 
     def _hook(self, method):
