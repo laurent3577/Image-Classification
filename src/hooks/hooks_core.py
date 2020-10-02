@@ -111,7 +111,8 @@ class Collect(Hook):
             self.trainer.state = {}
 
     def batch_end(self):
-        self._update(*self._collect())
+        if self.trainer.in_train:
+            self._update(*self._collect())
 
     def _update(self, k, v):
         if self.collect_type == 'list':
