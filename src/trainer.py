@@ -1,8 +1,10 @@
 from tqdm import tqdm
 from torch import optim
 from .hooks import EarlyStop, LRCollect, LossCollect
+from .optim import build_opt
 import torch
 import os
+import numpy as np
 import matplotlib.pyplot as plt
 
 class Trainer():
@@ -105,15 +107,18 @@ class Trainer():
             self._process_epoch()
         self._hook('val_end')
 
-    def lr_finder(self):
-        self.scheduler = optim.lr_scheduler.ExponentialLR(
-            self.optim, gamma=1.03753)
-        self.scheduler.update_on_step = True
+    def lr_finder(self, min_lr=1e-7, max_lr=10, nb_iter=500):
+        self.config.defrost()
+        self.config.OPTIM.BASE_LR = min_lr
+        self.config.OPTIM.SCHEDULER.GAMMA = np.exp(np.log(max_lr/min_lr)/nb_iter)
+        self.config.OPTIM.SCHEDULER.TYPE = "Exp"
+        self.config.freeze()
+        self.optim, self.scheduler = build_opt(self.config, self.model, len(self.train_loader))
         self._add_hooks([
-            EarlyStop(iter_stop=500),
+            EarlyStop(iter_stop=nb_iter),
             LRCollect('list'),
             LossCollect('list')])
-        self.train(epoch=500)
+        self.train(epoch=nb_iter)
         lrs = self.state['LR_list']
         loss = self.state['Loss_list']
         plt.plot(lrs, loss)
