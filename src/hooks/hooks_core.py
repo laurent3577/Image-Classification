@@ -110,12 +110,12 @@ class Collect(Hook):
 		self._update(self._collect())
 
 	def _update(self, k, v):
-		if collect_type = 'list':
+		if collect_type == 'list':
 			if k in self.trainer.state:
 				self.trainer.state[k].append(v)
 			else:
 				self.trainer.state[k] = [v]
-		elif collect_type = 'last':
+		elif collect_type == 'last':
 			self.trainer.state[k] = v
 
 	def _collect(self):
