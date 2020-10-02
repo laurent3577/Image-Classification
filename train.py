@@ -65,7 +65,10 @@ def main():
     hooks = build_hooks(config)
     trainer = Trainer(model, train_loader, val_loader, opt, scheduler, loss_fn, hooks, config)
 
-    trainer.train(epoch=config.OPTIM.EPOCH)
+    if config.LR_FINDER.USE:
+        trainer.lr_finder(min_lr=config.LR_FINDER.MIN_LR, max_lr=config.LR_FINDER.MAX_LR)
+    else:
+        trainer.train(epoch=config.OPTIM.EPOCH)
 
 
 if __name__ == '__main__':
