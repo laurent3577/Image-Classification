@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler, SequentialSampler, RandomSampler
 from src import *
 import numpy as np
+import matplotlib.pyplot as plt
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train  Classification Model')
@@ -79,6 +80,11 @@ def main():
 
     if config.LR_FINDER.USE:
         trainer.lr_finder(min_lr=config.LR_FINDER.MIN_LR, max_lr=config.LR_FINDER.MAX_LR)
+        lrs = self.state['LR_list']
+        loss = self.state['Loss_list']
+        plt.plot(lrs, loss)
+        plt.xscale('log')
+        plt.show()
     else:
         trainer.train(epoch=config.OPTIM.EPOCH)
 

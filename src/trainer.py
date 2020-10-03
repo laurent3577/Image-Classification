@@ -5,7 +5,6 @@ from .optim import build_opt
 import torch
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 
 class Trainer():
     def __init__(self, model, train_loader, val_loader, optim, scheduler, loss_fn, hooks, config):
@@ -121,11 +120,6 @@ class Trainer():
             LRCollect('list'),
             LossCollect('list')])
         self.train(epoch=nb_iter)
-        lrs = self.state['LR_list']
-        loss = self.state['Loss_list']
-        plt.plot(lrs, loss)
-        plt.xscale('log')
-        plt.show()
 
 
     def save_ckpt(self, name=None):
