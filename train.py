@@ -80,8 +80,8 @@ def main():
 
     if config.LR_FINDER.USE:
         trainer.lr_finder(min_lr=config.LR_FINDER.MIN_LR, max_lr=config.LR_FINDER.MAX_LR)
-        lrs = self.state['LR_list']
-        loss = self.state['Loss_list']
+        lrs = trainer.state['LR_list']
+        loss = trainer.state['Loss_list']
         plt.plot(lrs, loss)
         plt.xscale('log')
         plt.show()
