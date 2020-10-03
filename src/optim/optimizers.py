@@ -60,7 +60,7 @@ def build_lr_scheduler(optimizer, scheduler_name, step_size, gamma, cosine_lr_mi
                 epochs=epochs,
                 steps_per_epoch=steps_per_epoch,
                 pct_start=0.3,
-                div_factor=cycle_div_factor
+                div_factor=cycle_div_factor,
                 final_div_factor=1e4)
         scheduler.update_on_step = True
     else:
