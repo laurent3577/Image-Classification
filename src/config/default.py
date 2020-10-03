@@ -52,7 +52,7 @@ _C.SWA.LR = 0.00001
 _C.LR_FINDER = CN()
 _C.LR_FINDER.USE = False
 _C.LR_FINDER.MIN_LR = 1e-7
-_C.LR_FINDER.MAX_LR = 1
+_C.LR_FINDER.MAX_LR = 1.
 
 def update_config(cfg, args):
     cfg.defrost()
