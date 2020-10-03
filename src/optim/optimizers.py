@@ -1,68 +1,68 @@
 from torch import optim
 
 
-def build_opt(config, model, steps_per_epoch):
-    lr = config.OPTIM.BASE_LR
-    weight_decay = config.OPTIM.WEIGHT_DECAY
-    if config.OPTIM.OPTIMIZER == "Adam":
+def build_opt(model, optimizer_name, base_lr, weight_decay=1e-5, scheduler_name="OneCycle", step_size=10,
+            gamma=10., cosine_lr_min=1e-4, cycle_div_factor=25, epochs=20, steps_per_epoch=800):
+    if optimizer_name == "Adam":
         optimizer = optim.Adam(
             model.parameters(),
-            lr=lr,
+            lr=base_lr,
             weight_decay=weight_decay
         )
-    elif config.OPTIM.OPTIMIZER == 'SGD':
+    elif optimizer_name == 'SGD':
         optimizer = optim.SGD(
             model.parameters(),
-            lr=lr,
+            lr=base_lr,
             weight_decay=weight_decay,
             momentum=0.9,
             nesterov=True
         )
-    elif config.OPTIM.OPTIMIZER == "AdamW":
+    elif optimizer_name == "AdamW":
         optimizer = optim.AdamW(
             model.parameters(),
-            lr=lr,
+            lr=base_lr,
             weight_decay=weight_decay
         )
     else:
-        raise ValueError("{} unknown optimizer type".format(config.OPTIM.OPTIMIZER))
+        raise ValueError("{} unknown optimizer type".format(optimizer_name))
 
-    scheduler = build_lr_scheduler(optimizer, config, steps_per_epoch)
+    scheduler = build_lr_scheduler(optimizer, scheduler_name, step_size,
+    gamma, cosine_lr_min, cycle_div_factor, epochs, steps_per_epoch)
     return optimizer, scheduler
 
-def build_lr_scheduler(optimizer, config, steps_per_epoch):
-    if config.OPTIM.SCHEDULER.TYPE == "Step":
+def build_lr_scheduler(optimizer, scheduler_name, step_size, gamma, cosine_lr_min, cycle_div_factor, epochs, steps_per_epoch):
+    if scheduler_name == "Step":
         scheduler = optim.lr_scheduler.StepLR(
                 optimizer,
-                step_size=config.OPTIM.SCHEDULER.STEP_SIZE,
-                gamma=config.OPTIM.SCHEDULER.GAMMA)
+                step_size=step_size,
+                gamma=gamma)
         scheduler.update_on_step = False
-    elif config.OPTIM.SCHEDULER.TYPE == "Cosine":
+    elif scheduler_name == "Cosine":
         scheduler = optim.lr_scheduler.CosineAnnealingLR(
                 optimizer,
-                T_max=config.OPTIM.EPOCH*steps_per_epoch,
-                eta_min=config.OPTIM.SCHEDULER.COSINE_LR_MIN)
+                T_max=epochs*steps_per_epoch,
+                eta_min=cosine_lr_min)
         scheduler.update_on_step = True
-    elif config.OPTIM.SCHEDULER.TYPE == "Exp":
+    elif scheduler_name == "Exp":
         scheduler = optim.lr_scheduler.ExponentialLR(
                 optimizer,
-                gamma=config.OPTIM.SCHEDULER.GAMMA)
+                gamma=gamma)
         scheduler.update_on_step = True
-    elif config.OPTIM.SCHEDULER.TYPE == "OneCycle":
+    elif scheduler_name == "OneCycle":
         # For OneCycle scheduler:
         # max_lr = base_lr * gamma
         # initial_lr = max_lr / div_factor
         # final_lr = initial_lr / 1e4
         scheduler = optim.lr_scheduler.OneCycleLR(
                 optimizer,
-                max_lr=[pg['lr']*config.OPTIM.SCHEDULER.GAMMA for pg in optimizer.param_groups],
+                max_lr=[pg['lr']*gamma for pg in optimizer.param_groups],
                 total_steps=None,
-                epochs=config.OPTIM.EPOCH,
+                epochs=epochs,
                 steps_per_epoch=steps_per_epoch,
                 pct_start=0.3,
-                div_factor=config.OPTIM.SCHEDULER.CYCLE_DIV_FACTOR,
+                div_factor=cycle_div_factor
                 final_div_factor=1e4)
         scheduler.update_on_step = True
     else:
-        raise ValueError("{} unknown scheduler type".format(config.OPTIM.SCHEDULER.TYPE))
+        raise ValueError("{} unknown scheduler type".format(scheduler_name))
     return scheduler

@@ -34,7 +34,8 @@ def main():
     model = build_model(config)
 
     transforms = build_transforms([
-        ("Resize", {"size": config.DATASET.INPUT_SIZE}),
+        ("RandomResizedCrop", {"size": config.DATASET.INPUT_SIZE, "scale": (0.5,1.0)}),
+        ("Perspective", None),
         ("HorizontalFlip", None),
         ("VerticalFlip", None)
         ], config)
@@ -59,7 +60,18 @@ def main():
     train_loader = DataLoader(dataset, batch_size=config.OPTIM.BATCH_SIZE, sampler=train_sampler)
     val_loader = DataLoader(val_dataset, batch_size=config.OPTIM.BATCH_SIZE, sampler=val_sampler)
 
-    opt, scheduler = build_opt(config, model, len(train_loader))
+    opt, scheduler = build_opt(
+        optimizer_name=config.OPTIM.OPTIMIZER,
+        base_lr=config.OPTIM.BASE_LR,
+        weight_decay=config.OPTIM.WEIGHT_DECAY,
+        scheduler_name=config.OPTIM.SCHEDULER.TYPE,
+        step_size=config.OPTIM.SCHEDULER.STEP_SIZE,
+        gamma=config.OPTIM.SCHEDULER.GAMMA,
+        cosine_lr_min=config.OPTIM.SCHEDULER.COSINE_LR_MIN,
+        cycle_div_factor=config.OPTIM.SCHEDULER.CYCLE_DIV_FACTOR,
+        epochs=config.OPTIM.EPOCH,
+        steps_per_epoch=len(train_loader),
+        model=model)
 
     loss_fn = nn.CrossEntropyLoss()
     hooks = build_hooks(config)

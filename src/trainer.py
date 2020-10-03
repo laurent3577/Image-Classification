@@ -108,12 +108,14 @@ class Trainer():
         self._hook('val_end')
 
     def lr_finder(self, min_lr=1e-7, max_lr=10, nb_iter=500):
-        self.config.defrost()
-        self.config.OPTIM.BASE_LR = min_lr
-        self.config.OPTIM.SCHEDULER.GAMMA = float(np.exp(np.log(max_lr/min_lr)/nb_iter))
-        self.config.OPTIM.SCHEDULER.TYPE = "Exp"
-        self.config.freeze()
-        self.optim, self.scheduler = build_opt(self.config, self.model, len(self.train_loader))
+        self.optim, self.scheduler = build_opt(
+            optimizer_name=self.config.OPTIM.OPTIMIZER,
+            base_lr=min_lr,
+            weight_decay=self.config.OPTIM.WEIGHT_DECAY,
+            scheduler_name="Exp",
+            gamma=float(np.exp(np.log(max_lr/min_lr)/nb_iter)),
+            steps_per_epoch=len(self.train_loader),
+            model=self.model)
         self._add_hooks([
             EarlyStop(iter_stop=nb_iter),
             LRCollect('list'),
