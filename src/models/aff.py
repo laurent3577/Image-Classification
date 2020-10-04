@@ -15,7 +15,7 @@ class MSCam(nn.Module):
 		super(MSCam, self).__init__()
 		proj_dim = in_channels//ratio
 		self._global = nn.Sequential(
-			# nn.AdaptiveAvgPool2d((1, 1)),
+			nn.AdaptiveAvgPool2d((1, 1)),
 			conv1x1block(in_channels, proj_dim, True, True),
 			conv1x1block(proj_dim, in_channels, True, False))
 		self._local = nn.Sequential(
@@ -35,4 +35,4 @@ class AFF(nn.Module):
 		x = identity + resid
 		att = self.mscam(x)
 		x = att*identity + (1-att)*resid
-		return x
+		return identity + resid
