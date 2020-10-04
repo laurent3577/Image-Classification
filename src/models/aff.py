@@ -7,10 +7,11 @@ def conv1x1block(in_channels, out_channels, use_bn, use_act):
         modules.append(nn.BatchNorm2d(num_features=out_channels))
     if use_act:
         modules.append(nn.LeakyReLU())
-    return nn.Sequential(*modules)
+    return nn.ModuleList(modules)
 
 class MSCam(nn.Module):
 	def __init__(self, in_channels, ratio):
+		super(MSCam, self).__init__()
 		self._global = nn.Sequential([
 			nn.AdaptiveAvgPool2d((1, 1)),
 			conv1x1block(in_channels, int(in_channels/ratio), True, True),
@@ -25,6 +26,7 @@ class MSCam(nn.Module):
 		
 class AFF(nn.Module):
 	def __init__(self, in_channels, ratio=16):
+		super(AFF, self).__init__()
 		self.mscam = MSCam(in_channels, ratio)
 
 	def forward(self, identity, resid):
