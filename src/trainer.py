@@ -75,7 +75,7 @@ class Trainer():
         if self.in_train:
             self._hook('before_backward')
             self.loss.backward()
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1)
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1e-2)
             self.optim.step()
             if self.scheduler.update_on_step:
                 self.scheduler.step()
