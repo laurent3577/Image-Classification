@@ -7,7 +7,7 @@ def conv1x1block(in_channels, out_channels, use_bn, use_act):
     if use_bn:
         modules.append(nn.BatchNorm2d(num_features=out_channels))
     if use_act:
-        modules.append(nn.LeakyReLU())
+        modules.append(nn.LeakyReLU(inplace=True))
     return nn.Sequential(*modules)
 
 class MSCam(nn.Module):
