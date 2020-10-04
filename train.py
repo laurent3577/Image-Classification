@@ -32,6 +32,8 @@ def main():
         os.makedirs(config.OUTPUT_DIR)
     print(config)
     model = build_model(config)
+    if config.PRINT_MODEL:
+        print(model)
 
     transforms = build_transforms([
         ("RandomResizedCrop", {"size": config.DATASET.INPUT_SIZE, "scale": (0.5,1.0)}),
