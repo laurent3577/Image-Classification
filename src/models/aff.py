@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 
 
 def conv1x1block(in_channels, out_channels, use_bn, use_act):
