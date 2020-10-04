@@ -23,7 +23,7 @@ class MSCam(nn.Module):
 			conv1x1block(proj_dim, in_channels, True, False))
 
 	def forward(self, x):
-		out = x * torch.sigmoid(self._local(x) + self._global(x))
+		out = torch.sigmoid(self._local(x) + self._global(x))
 		return out
 		
 class AFF(nn.Module):
@@ -32,7 +32,6 @@ class AFF(nn.Module):
 		self.mscam = MSCam(in_channels, ratio)
 
 	def forward(self, identity, resid):
-		x = identity + resid
-		att = self.mscam(x)
-		x = att*identity + (1-att)*resid
-		return identity + resid
+		att = self.mscam(identity + resid)
+		out = att*identity + (1-att)*resid
+		return out
