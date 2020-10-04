@@ -222,6 +222,7 @@ class ResNet(nn.Module):
         x = self.layer4(x)
 
         x = self.avgpool(x)
+        print(x)
         x = torch.flatten(x, 1)
         x = F.dropout(x, p=0.5, training=self.training)
         x = self.fc(x)
