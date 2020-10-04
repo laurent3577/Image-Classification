@@ -13,13 +13,14 @@ def conv1x1block(in_channels, out_channels, use_bn, use_act):
 class MSCam(nn.Module):
 	def __init__(self, in_channels, ratio):
 		super(MSCam, self).__init__()
+		proj_dim = in_channels//ratio
 		self._global = nn.Sequential(
 			nn.AdaptiveAvgPool2d((1, 1)),
-			conv1x1block(in_channels, int(in_channels/ratio), True, True),
-			conv1x1block(int(in_channels/ratio), in_channels, True, False))
+			conv1x1block(in_channels, proj_dim, True, True),
+			conv1x1block(proj_dim, in_channels, True, False))
 		self._local = nn.Sequential(
-			conv1x1block(in_channels, int(in_channels/ratio), True, True),
-			conv1x1block(int(in_channels/ratio), in_channels, True, False))
+			conv1x1block(in_channels, proj_dim, True, True),
+			conv1x1block(proj_dim, in_channels, True, False))
 
 	def forward(self, x):
 		out = x * torch.sigmoid(self._local(x) + self._global(x))
