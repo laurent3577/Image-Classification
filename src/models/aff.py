@@ -33,5 +33,5 @@ class AFF(nn.Module):
 
 	def forward(self, identity, resid):
 		att = self.mscam(identity + resid)
-		out = 2*att*identity + 2*(1-att)*resid
+		out = 2*att*resid + 2*(1-att)*identity
 		return out
