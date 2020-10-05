@@ -30,8 +30,12 @@ class AFF(nn.Module):
 	def __init__(self, in_channels, ratio=16):
 		super(AFF, self).__init__()
 		self.mscam = MSCam(in_channels, ratio)
+		self.bn = nn.BatchNorm2d(num_features=in_channels)
+		self.act = nn.LeakyReLU(inplace=True)
 
 	def forward(self, identity, resid):
 		att = self.mscam(identity + resid)
 		out = 2*att*resid + 2*(1-att)*identity
+		out = self.bn(out)
+		out = self.act(out)
 		return out
