@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler, SequentialSampler, RandomSampler
 from src import *
 import numpy as np
+from trains import Task
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train  Classification Model')
@@ -27,6 +28,7 @@ def parse_args():
 
 
 def main():
+    task= Task.init(project_name="Image Classification", task_name="my task")
     args = parse_args()
     if not os.path.exists(config.OUTPUT_DIR):
         os.makedirs(config.OUTPUT_DIR)
