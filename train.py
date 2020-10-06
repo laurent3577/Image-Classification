@@ -30,6 +30,7 @@ def parse_args():
 def main():
     task= Task.init(project_name="Image Classification", task_name="my task")
     args = parse_args()
+    task.connect(config)
     if not os.path.exists(config.OUTPUT_DIR):
         os.makedirs(config.OUTPUT_DIR)
     print(config)
