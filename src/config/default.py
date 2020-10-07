@@ -44,11 +44,16 @@ _C.SWA.USE = False
 _C.SWA.EPOCH_START = 5
 _C.SWA.ANNEAL_EPOCH = 0.5
 _C.SWA.LR = 0.00001
-
+# LR FINDER
 _C.LR_FINDER = CN()
 _C.LR_FINDER.USE = False
 _C.LR_FINDER.MIN_LR = 1e-7
 _C.LR_FINDER.MAX_LR = 1.
+# KD
+_C.KD = CN()
+_C.KD.USE = False
+_C.KD.COEFF = 1
+_C.KD.TEACHER_PATH = ''
 
 def update_config(cfg, args):
     cfg.defrost()

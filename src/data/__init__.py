@@ -1,4 +1,5 @@
 from .dataset import CIFAR100, CIFAR10
+from .transforms import build_transforms
 
 def build_dataset(config, split, transform=None, target_transform=None):
 	if config.DATASET.NAME == "CIFAR100":

@@ -11,7 +11,8 @@ class BaseDataset(Dataset):
 		self.targets = self._get_targets(data_dir, self.split)
 		self.transforms = build_transforms(transforms, normalize)
 		self.target_transform = target_transform
-		self.add_to_sample = None
+		self.add_to_sample = []
+		self.normalize_type = normalize
 
 	def __len__(self):
 		return len(self.data)
@@ -25,12 +26,13 @@ class BaseDataset(Dataset):
 			target = self.target_transform(target)
 
 		sample = {
+			"index":index,
 			"img":img,
 			"target":target
 		}
-		if self.add_to_sample is not None:
-			for add_fn in self.add_to_sample:
-				sample = add_fn(sample)
+
+		for add_fn in self.add_to_sample:
+			sample = add_fn(sample)
 		return sample
 
 	def _get_data(self, data_dir, split):
