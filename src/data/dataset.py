@@ -2,6 +2,7 @@ from torch.utils.data import Dataset
 from torchvision import datasets
 from .transforms import build_transforms
 from PIL import Image
+import numpy as np
 
 class BaseDataset(Dataset):
 	def __init__(self, data_dir, split, transforms=[], target_transform=None, normalize='imagenet'):
