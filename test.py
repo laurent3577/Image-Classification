@@ -3,7 +3,7 @@ import argparse
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SequentialSampler
-from src import build_model, build_transforms, build_dataset, acc
+from src import build_model, build_dataset, acc
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Test Classification Model')
@@ -28,7 +28,7 @@ def main():
 	model = model.to(device)
 	model.load_state_dict(params)
 	print("Model loaded from: {}".format(args.save_path))
-	transforms = build_transforms([("Resize", {"size": config.DATASET.INPUT_SIZE})], config)
+	transforms = [("Resize", {"size": config.DATASET.INPUT_SIZE})]
 
 	dataset = build_dataset(config, split='test', transform=transforms)
 	sampler = SequentialSampler(dataset)

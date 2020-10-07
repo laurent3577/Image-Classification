@@ -3,12 +3,12 @@ from torchvision import datasets
 from .transforms import build_transforms
 
 class BaseDataset(Dataset):
-	def __init__(self, data_dir, split, input_size, transforms=[], target_transform=None):
+	def __init__(self, data_dir, split, input_size, transforms=[], target_transform=None, normalize='imagenet'):
 		self.split = split
 		self.input_size = input_size
 		self.data = self._get_data(data_dir, self.split)
 		self.targets = self._get_targets(data_dir, self.split)
-		self.transforms = build_transforms(transforms)
+		self.transforms = build_transforms(transforms, normalize)
 		self.target_transform = target_transform
 		self.add_to_sample = None
 

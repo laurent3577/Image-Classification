@@ -38,15 +38,15 @@ def main():
     if config.PRINT_MODEL:
         print(model)
 
-    transforms = build_transforms([
+    transforms = [
         ("RandomResizedCrop", {"size": config.DATASET.INPUT_SIZE, "scale": (0.5,1.0)}),
         ("Perspective", None),
         ("HorizontalFlip", None),
         ("VerticalFlip", None)
-        ], config)
-    val_transforms = build_transforms([
+        ]
+    val_transforms = [
         ("Resize", {"size": config.DATASET.INPUT_SIZE})
-        ], config)
+        ]
     dataset = build_dataset(config, split='train', transform=transforms)
     val_dataset = build_dataset(config, split='val', transform=val_transforms)
     train_sampler = RandomSampler(dataset)
