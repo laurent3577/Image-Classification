@@ -9,12 +9,12 @@ import torch.nn.functional as F
 class KnowledgeDistillation(Hook):
 	def __init__(self, teacher_path, coeff):
 		self.teacher = load_from_path(teacher_path)
-		self.teacher.to(self.trainer.device)
 		self.coeff = coeff
 		self.teacher_targets = {}
 
 	def train_begin(self):
 		print("Generating teacher targets...")
+		self.teacher.to(self.trainer.device)
 		init_transforms = self.trainer.train_loader.dataset.transforms
 		self.trainer.train_loader.dataset.transforms=build_transforms(
 			[("Resize",{"size":self.trainer.config.DATASET.INPUT_SIZE})],
