@@ -20,14 +20,7 @@ def parse_args():
 def main():
 	print("Testing...")
 	args = parse_args()
-	data = torch.load(args.save_path)
-	params = data['params']
-	config = data['cfg']
-	device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-	model = build_model(config)
-	model = model.to(device)
-	model.load_state_dict(params)
-	print("Model loaded from: {}".format(args.save_path))
+	model = load_from_path(args.save_path)
 	transforms = [("Resize", {"size": config.DATASET.INPUT_SIZE})]
 
 	dataset = build_dataset(config, split='test', transform=transforms)
