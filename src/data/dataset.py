@@ -41,17 +41,19 @@ class CIFAR100(BaseDataset):
 		super(CIFAR100, self).__init__(data_dir, split, input_size, transforms, target_transform)
 		if split == 'val':
 			self.val_from_train=True
+
 	def _get_data(self, data_dir, split):
 		return datasets.CIFAR100(root=data_dir, train=split!='test', download=True).data
 	def _get_targets(self, data_dir, split):
 		return datasets.CIFAR100(root=data_dir, train=split!='test', download=True).targets
 
 class CIFAR10(BaseDataset):
-	def _get_data(self, data_dir, split):
-		def __init__(self, data_dir, split, input_size, transforms, target_transform):
+	def __init__(self, data_dir, split, input_size, transforms, target_transform):
 		super(CIFAR10, self).__init__(data_dir, split, input_size, transforms, target_transform)
 		if split == 'val':
 			self.val_from_train=True
+
+	def _get_data(self, data_dir, split):
 		return datasets.CIFAR10(root=data_dir, train=split!='test', download=True).data
 	def _get_targets(self, data_dir, split):
 		return datasets.CIFAR10(root=data_dir, train=split!='test', download=True).targets
