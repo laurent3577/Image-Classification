@@ -1,5 +1,5 @@
 import torch
-from models import build_model
+from ..models import build_model
 
 def load_from_path(path):
 	data = torch.load(path)

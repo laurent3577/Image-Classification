@@ -1,7 +1,7 @@
 from .hooks_core import Hook
 from torchvision import transforms
-from utils import load_from_path
-from data import build_transforms
+from ..utils import load_from_path
+from ..data import build_transforms
 import torch
 from tqdm import tqdm
 import torch.nn.functional as F
