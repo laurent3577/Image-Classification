@@ -3,9 +3,8 @@ from torchvision import datasets
 from .transforms import build_transforms
 
 class BaseDataset(Dataset):
-	def __init__(self, data_dir, split, input_size, transforms=[], target_transform=None, normalize='imagenet'):
+	def __init__(self, data_dir, split, transforms=[], target_transform=None, normalize='imagenet'):
 		self.split = split
-		self.input_size = input_size
 		self.data = self._get_data(data_dir, self.split)
 		self.targets = self._get_targets(data_dir, self.split)
 		self.transforms = build_transforms(transforms, normalize)
@@ -37,8 +36,8 @@ class BaseDataset(Dataset):
 		raise NotImplementedError
 
 class CIFAR100(BaseDataset):
-	def __init__(self, data_dir, split, input_size, transforms, target_transform):
-		super(CIFAR100, self).__init__(data_dir, split, input_size, transforms, target_transform)
+	def __init__(self, data_dir, split, transforms, target_transform):
+		super(CIFAR100, self).__init__(data_dir, split, transforms, target_transform)
 		if split == 'val':
 			self.val_from_train=True
 
@@ -48,8 +47,8 @@ class CIFAR100(BaseDataset):
 		return datasets.CIFAR100(root=data_dir, train=split!='test', download=True).targets
 
 class CIFAR10(BaseDataset):
-	def __init__(self, data_dir, split, input_size, transforms, target_transform):
-		super(CIFAR10, self).__init__(data_dir, split, input_size, transforms, target_transform)
+	def __init__(self, data_dir, split, transforms, target_transform):
+		super(CIFAR10, self).__init__(data_dir, split, transforms, target_transform)
 		if split == 'val':
 			self.val_from_train=True
 
