@@ -49,6 +49,14 @@ class Trainer():
                 raise
         return out
 
+    def _to_device(self, x):
+        if isinstance(x, list):
+            return [e.to(self.device) for e in x]
+        elif isinstance(x, dict):
+            return {k:v.to(self.device) for k,v in x.items()}
+        else:
+            return x.to(self.device)
+
     def _process_epoch(self):
         if self.in_train:
             self.model.train()
@@ -56,11 +64,11 @@ class Trainer():
         else:
             self.model.eval()
             self.pbar = tqdm(self.val_loader)
-        for img, target in self.pbar:
+        for sample in self.pbar:
             if self.in_train:
                 self.step += 1
-            self.input = img.to(self.device)
-            self.target = target.to(self.device)
+            self.input = self._to_device(sample)
+            self.target = self.input["target"]
             self._hook('batch_begin')
             self._process_batch()
             self._hook('batch_end')
@@ -69,7 +77,7 @@ class Trainer():
 
     def _process_batch(self):
         self.optim.zero_grad()
-        self.output = self.model(self.input)
+        self.output = self.model(self.input["img"])
         self._hook('before_loss')
         self.loss = self.loss_fn(self.output, self.target)
         if self.in_train:
