@@ -1,6 +1,7 @@
 from torch.utils.data import Dataset
 from torchvision import datasets
 from .transforms import build_transforms
+from PIL import Image
 
 class BaseDataset(Dataset):
 	def __init__(self, data_dir, split, transforms=[], target_transform=None, normalize='imagenet'):
@@ -16,6 +17,8 @@ class BaseDataset(Dataset):
 
 	def __getitem__(self, index):
 		img, target = self.data[index], self.targets[index]
+		if isinstance(img, np.ndarray):
+			img = Image.fromarray(img)
 		img = self.transforms(img)
 		if self.target_transform is not None:
 			target = self.target_transform(target)
