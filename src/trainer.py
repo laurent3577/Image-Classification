@@ -64,10 +64,10 @@ class Trainer():
         else:
             self.model.eval()
             self.pbar = tqdm(self.val_loader)
-        for sample in self.pbar:
+        for batch in self.pbar:
             if self.in_train:
                 self.step += 1
-            self.input = self._to_device(sample)
+            self.input = self._to_device(batch)
             self.target = self.input["target"]
             self._hook('batch_begin')
             self._process_batch()
