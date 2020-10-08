@@ -32,6 +32,9 @@ class Hook():
         return
 
 class Validation(Hook):
+    def __init__(self):
+        self.best_acc = 0
+
     def val_begin(self):
         self.accuracy = 0
         self.loss = 0
@@ -45,13 +48,19 @@ class Validation(Hook):
             self.total += self.trainer.output.size(0)
 
     def val_end(self):
+        acc = self.accuracy/self.nb_batch*100
+        loss = self.loss/self.nb_batch
+        if acc > self.best_acc:
+            self.best_acc = acc
+            self.trainer.save_ckpt('best_val.pth')
+            print("New best validation accuracy obtained, checkpoint saved.")
         print("Validation results: Acc: {0:.2f} ({1}/{2})   Loss: {3:.4f}".format(
-            self.accuracy/self.nb_batch*100,
-            int(self.accuracy/self.nb_batch*self.total),
+            acc,
+            int(acc/100*self.total),
             self.total,
-            self.loss/self.nb_batch))
-        self.trainer.to_plot.append(["Loss", self.trainer.step, self.loss/self.nb_batch, "Val Loss", "Step", "Value"])
-        self.trainer.to_plot.append(["Acc", self.trainer.step, self.accuracy/self.nb_batch*100, "Val Acc", "Step", "Value"])
+            loss))
+        self.trainer.to_plot.append(["Loss", self.trainer.step, loss, "Val Loss", "Step", "Value"])
+        self.trainer.to_plot.append(["Acc", self.trainer.step, acc, "Val Acc", "Step", "Value"])
 
 class Logging(Hook):
     def train_begin(self):

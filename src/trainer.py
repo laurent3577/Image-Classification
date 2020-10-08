@@ -99,7 +99,7 @@ class Trainer():
                 self.val()
             if not self.scheduler.update_on_step:
                 self.scheduler.step()
-            self.save_ckpt()
+            # self.save_ckpt()
             self.epoch += 1
             if self._hook('stop_train'):
                 self._hook('train_end')
