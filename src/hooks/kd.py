@@ -37,6 +37,5 @@ class KnowledgeDistillation(Hook):
 		return sample
 
 	def before_backward(self):
-		print(self.trainer.target, torch.argmax(self.trainer.input['teacher_targets'],1))
 		kd_loss = torch.pow(F.softmax(self.trainer.output,1) - F.softmax(self.trainer.input['teacher_targets'],1),2).mean()
 		self.trainer.loss += self.coeff * kd_loss
