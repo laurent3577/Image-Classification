@@ -35,8 +35,8 @@ class VAT(Hook):
         d /= torch.norm(d_reshaped, dim=1, keepdim=True) + 1e-8
         return d
 
-    def _adv_distance(self, pred, x, pert):
-        pred_hat = self.trainer.model(x+pert)
+    def _adv_distance(self, pred, x, pert, coeff):
+        pred_hat = self.trainer.model(x+coeff*pert)
         logp_hat = F.log_softmax(pred_hat, dim=1)
         adv_distance = F.kl_div(logp_hat, pred, reduction='batchmean')
         return adv_distance
@@ -53,16 +53,14 @@ class VAT(Hook):
         with _disable_tracking_bn_stats(self.trainer.model):
             for _ in range(self.K):
                 pert.requires_grad_()
+                adv_distance = self._adv_distance(pred, x, pert, self.xi)
                 pert.retain_grad()
-                pert = self.xi * pert
-                adv_distance = self._adv_distance(pred, x, pert)
                 adv_distance.backward()
                 print(pert.grad)
                 pert = self._l2_normalize(pert.grad)
                 self.trainer.model.zero_grad()
 
-            pert = self.eps * pert
-            self.lds = self._adv_distance(pred, x, pert)
+            self.lds = self._adv_distance(pred, x, pert, self.eps)
 
     def before_backward(self):
         self.trainer.loss += self.alpha * self.lds
