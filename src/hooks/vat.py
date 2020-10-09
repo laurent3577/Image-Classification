@@ -42,7 +42,7 @@ class VAT(Hook):
         return adv_distance
 
     def batch_begin(self):
-        if self.in_train:
+        if self.trainer.in_train:
             # VAT loss should be computed before regular forward pass
             x = self.trainer.input["img"]
             with torch.no_grad():
