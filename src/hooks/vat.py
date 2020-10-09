@@ -55,8 +55,8 @@ class VAT(Hook):
                 pert = self._l2_normalize(pert.grad)
                 self.trainer.model.zero_grad()
 
-            self.trainer.model.apply(self.set_bn_train)
             self.lds = self._adv_distance(pred, x, pert, self.eps)
+            self.trainer.model.apply(self.set_bn_train)
 
     def before_backward(self):
         self.trainer.loss += self.alpha * self.lds
