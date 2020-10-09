@@ -48,7 +48,7 @@ class VAT(Hook):
             pred = F.softmax(self.trainer.model(x), dim=1)
 
         pert = torch.rand(x.shape).sub(0.5).to(x.device)
-        pert = self._l2_normalize(d)
+        pert = self._l2_normalize(pert)
 
         with _disable_tracking_bn_stats(self.trainer.model):
             for _ in range(self.K):
