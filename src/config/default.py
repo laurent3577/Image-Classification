@@ -54,6 +54,11 @@ _C.KD = CN()
 _C.KD.USE = False
 _C.KD.COEFF = 1
 _C.KD.TEACHER_PATH = ''
+# VAT
+_C.VAT = CN()
+_C.VAT.USE = False
+_C.VAT.EPS = 2.0
+_C.VAT.K = 1
 
 def update_config(cfg, args):
     cfg.defrost()
