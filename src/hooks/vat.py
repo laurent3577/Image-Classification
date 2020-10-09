@@ -23,8 +23,8 @@ class VAT(Hook):
 
     @staticmethod
     def set_bn_eval(m):
-    if isinstance(m, nn.modules.batchnorm._BatchNorm):
-        m.eval()
+        if isinstance(m, nn.modules.batchnorm._BatchNorm):
+            m.eval()
 
     @staticmethod
     def set_bn_train(m):
