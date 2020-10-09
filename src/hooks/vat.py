@@ -42,24 +42,25 @@ class VAT(Hook):
         return adv_distance
 
     def batch_begin(self):
-        # VAT loss should be computed before regular forward pass
-        x = self.trainer.input["img"]
-        with torch.no_grad():
-            pred = F.softmax(self.trainer.model(x), dim=1)
+        if self.in_train:
+            # VAT loss should be computed before regular forward pass
+            x = self.trainer.input["img"]
+            with torch.no_grad():
+                pred = F.softmax(self.trainer.model(x), dim=1)
 
-        pert = torch.rand(x.shape).sub(0.5).to(x.device)
-        pert = self._l2_normalize(pert)
+            pert = torch.normal(0,1, size=x.shape).to(x.device)
+            pert = self._l2_normalize(pert)
 
-        with _disable_tracking_bn_stats(self.trainer.model):
-            for _ in range(self.K):
-                pert.requires_grad_()
-                adv_distance = self._adv_distance(pred, x, pert, self.xi)
-                pert.retain_grad()
-                adv_distance.backward()
-                pert = self._l2_normalize(pert.grad)
-                self.trainer.model.zero_grad()
+            with _disable_tracking_bn_stats(self.trainer.model):
+                for _ in range(self.K):
+                    pert.requires_grad_()
+                    adv_distance = self._adv_distance(pred, x, pert, self.xi)
+                    pert.retain_grad()
+                    adv_distance.backward()
+                    pert = self._l2_normalize(pert.grad)
+                    self.trainer.model.zero_grad()
 
-            self.lds = self._adv_distance(pred, x, pert, self.eps)
+                self.lds = self._adv_distance(pred, x, pert, self.eps)
 
     def before_backward(self):
         self.trainer.loss += self.alpha * self.lds
