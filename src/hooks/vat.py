@@ -56,7 +56,6 @@ class VAT(Hook):
                 adv_distance = self._adv_distance(pred, x, pert, self.xi)
                 pert.retain_grad()
                 adv_distance.backward()
-                print(pert.grad)
                 pert = self._l2_normalize(pert.grad)
                 self.trainer.model.zero_grad()
 
