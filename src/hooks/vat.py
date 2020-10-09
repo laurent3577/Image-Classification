@@ -1,25 +1,7 @@
-import contextlib
 from .hooks_core import Hook
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-
-@contextlib.contextmanager
-def _disable_tracking_bn_stats(model):
-
-    def switch_attr(m):
-        if hasattr(m, 'track_running_stats'):
-            # as suggested https://github.com/lyakaap/VAT-pytorch/issues/12
-            if m.training:
-                m.eval()
-            else:
-                m.train()
-            # m.track_running_stats ^= True
-            
-    model.apply(switch_attr)
-    yield
-    model.apply(switch_attr)
 
 
 class VAT(Hook):
@@ -39,6 +21,16 @@ class VAT(Hook):
         d /= torch.norm(d_reshaped, dim=1, keepdim=True) + 1e-8
         return d
 
+    @staticmethod
+    def set_bn_eval(m):
+    if isinstance(m, nn.modules.batchnorm._BatchNorm):
+        m.eval()
+
+    @staticmethod
+    def set_bn_train(m):
+        if isinstance(m, nn.modules.batchnorm._BatchNorm):
+            m.train()
+
     def _adv_distance(self, pred, x, pert, coeff):
         pred_hat = self.trainer.model(x+coeff*pert)
         logp_hat = F.log_softmax(pred_hat, dim=1)
@@ -54,17 +46,17 @@ class VAT(Hook):
 
             pert = torch.normal(0,1, size=x.shape).to(x.device)
             pert = self._l2_normalize(pert)
+            self.trainer.model.apply(self.set_bn_eval)
+            for _ in range(self.K):
+                pert.requires_grad_()
+                adv_distance = self._adv_distance(pred, x, pert, self.xi)
+                pert.retain_grad()
+                adv_distance.backward()
+                pert = self._l2_normalize(pert.grad)
+                self.trainer.model.zero_grad()
 
-            with _disable_tracking_bn_stats(self.trainer.model):
-                for _ in range(self.K):
-                    pert.requires_grad_()
-                    adv_distance = self._adv_distance(pred, x, pert, self.xi)
-                    pert.retain_grad()
-                    adv_distance.backward()
-                    pert = self._l2_normalize(pert.grad)
-                    self.trainer.model.zero_grad()
-
-                self.lds = self._adv_distance(pred, x, pert, self.eps)
+            self.trainer.model.apply(self.set_bn_train)
+            self.lds = self._adv_distance(pred, x, pert, self.eps)
 
     def before_backward(self):
         self.trainer.loss += self.alpha * self.lds
