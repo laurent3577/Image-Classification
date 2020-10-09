@@ -10,8 +10,12 @@ def _disable_tracking_bn_stats(model):
 
     def switch_attr(m):
         if hasattr(m, 'track_running_stats'):
+            # as suggested https://github.com/lyakaap/VAT-pytorch/issues/12
+            if m.training:
+                m.eval()
+            else:
+                m.train()
             # m.track_running_stats ^= True
-            m.eval() # as suggested https://github.com/lyakaap/VAT-pytorch/issues/12
             
     model.apply(switch_attr)
     yield
