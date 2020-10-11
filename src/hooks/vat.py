@@ -36,30 +36,29 @@ class VAT(Hook):
         adv_distance = F.kl_div(logp_hat, target, reduction='batchmean')
         return adv_distance
 
-    def batch_begin(self):
-        if self.trainer.in_train:
-            self.trainer.model.apply(self.set_bn_eval) # disable batch stats update
-
-            x = self.trainer.input["img"]
-            with torch.no_grad():
-                pred = F.softmax(self.trainer.model(x), dim=1)
-
-            pert = torch.normal(0,1, size=x.shape).to(x.device)
-            pert = self._l2_normalize(pert)
-            for _ in range(self.K):
-                x_pert = x.data + self.xi * pert
-                x_pert.requires_grad_()
-                p_d_logit = self.trainer.model(x_pert)
-                adv_distance = self._adv_distance(pred, p_d_logit)
-                x_pert.retain_grad()
-                adv_distance.backward()
-                pert = self._l2_normalize(x_pert.grad)
-                self.trainer.model.zero_grad()
-
-            x_adv = x + self.eps * pert
-            p_adv_logit = self.trainer.model(x_adv)
-            self.lds = self._adv_distance(pred, p_adv_logit)
-            self.trainer.model.apply(self.set_bn_train)
-
     def before_backward(self):
-        self.trainer.loss += self.alpha * self.lds
+        self.trainer.model.apply(self.set_bn_eval) # disable batch stats update
+        for m in self.trainer.model.modules():
+            if isinstance(m, nn.modules.batchnorm._BatchNorm):
+                print(m, m.training)
+        x = self.trainer.input["img"]
+        with torch.no_grad():
+            pred = F.softmax(self.trainer.model(x), dim=1).detach()
+
+        pert = torch.normal(0,1, size=x.shape).to(x.device)
+        pert = self._l2_normalize(pert)
+        for _ in range(self.K):
+            x_pert = x.data + self.xi * pert
+            x_pert.requires_grad_()
+            p_d_logit = self.trainer.model(x_pert)
+            adv_distance = self._adv_distance(pred, p_d_logit)
+            x_pert.retain_grad()
+            adv_distance.backward()
+            pert = self._l2_normalize(x_pert.grad)
+            self.trainer.model.zero_grad()
+
+        x_adv = x + self.eps * pert
+        p_adv_logit = self.trainer.model(x_adv)
+        lds = self._adv_distance(pred, p_adv_logit)
+        self.trainer.loss += self.alpha * lds
+        self.trainer.model.apply(self.set_bn_train)
