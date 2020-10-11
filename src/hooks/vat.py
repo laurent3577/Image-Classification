@@ -24,13 +24,13 @@ class VAT(Hook):
     @staticmethod
     def set_bn_eval(m):
         if isinstance(m, nn.modules.batchnorm._BatchNorm):
-            # m.eval()
+            m.eval()
             m.track_running_stats = False
 
     @staticmethod
     def set_bn_train(m):
         if isinstance(m, nn.modules.batchnorm._BatchNorm):
-            # m.train()
+            m.train()
             m.track_running_stats = True
 
     def _adv_distance(self, target, p_logit):
@@ -44,7 +44,7 @@ class VAT(Hook):
         with torch.no_grad():
             pred = F.softmax(self.trainer.model(x), dim=1).detach()
 
-        pert = torch.normal(0,1, size=x.shape).to(x.device)
+        pert = torch.randn_like(x)
         pert = self._l2_normalize(pert)
         for _ in range(self.K):
             x_pert = x.data + self.xi * pert
