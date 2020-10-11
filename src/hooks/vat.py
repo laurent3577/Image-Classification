@@ -43,7 +43,7 @@ class VAT(Hook):
         for m in self.trainer.model.modules():
             if isinstance(m, nn.modules.batchnorm._BatchNorm):
                 print(m, m.training)
-            break
+                break
         x = self.trainer.input["img"]
         with torch.no_grad():
             pred = F.softmax(self.trainer.model(x), dim=1).detach()
@@ -68,4 +68,4 @@ class VAT(Hook):
         for m in self.trainer.model.modules():
             if isinstance(m, nn.modules.batchnorm._BatchNorm):
                 print(m, m.training)
-            break
+                break
