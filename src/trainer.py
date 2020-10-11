@@ -62,7 +62,7 @@ class Trainer():
             self.model.train()
             self.pbar = tqdm(self.train_loader)
         else:
-            self.model.train()
+            self.model.eval()
             self.pbar = tqdm(self.val_loader)
         for batch in self.pbar:
             if self.in_train:
