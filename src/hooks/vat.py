@@ -31,31 +31,34 @@ class VAT(Hook):
         if isinstance(m, nn.modules.batchnorm._BatchNorm):
             m.train()
 
-    def _adv_distance(self, pred, x, pert, coeff):
-        pred_hat = self.trainer.model(x+coeff*pert)
-        logp_hat = F.log_softmax(pred_hat, dim=1)
-        adv_distance = F.kl_div(logp_hat, pred, reduction='batchmean')
+    def _adv_distance(self, target, p_logit):
+        logp_hat = F.log_softmax(p_logit, dim=1)
+        adv_distance = F.kl_div(logp_hat, target, reduction='batchmean')
         return adv_distance
 
     def batch_begin(self):
         if self.trainer.in_train:
-            # VAT loss should be computed before regular forward pass
+            self.trainer.model.apply(self.set_bn_eval) # disable batch stats update
+
             x = self.trainer.input["img"]
             with torch.no_grad():
                 pred = F.softmax(self.trainer.model(x), dim=1)
 
             pert = torch.normal(0,1, size=x.shape).to(x.device)
             pert = self._l2_normalize(pert)
-            self.trainer.model.apply(self.set_bn_eval)
             for _ in range(self.K):
-                pert.requires_grad_()
-                adv_distance = self._adv_distance(pred, x, pert, self.xi)
-                pert.retain_grad()
+                x_pert = x.data + self.xi * pert
+                x_pert.requires_grad_()
+                p_d_logit = self.trainer.model(x_pert)
+                adv_distance = self._adv_distance(pred, p_d_logit)
+                x_pert.retain_grad()
                 adv_distance.backward()
-                pert = self._l2_normalize(pert.grad)
+                pert = self._l2_normalize(x_pert.grad)
                 self.trainer.model.zero_grad()
 
-            self.lds = self._adv_distance(pred, x, pert, self.eps)
+            x_adv = x + self.eps * pert
+            p_adv_logit = self.trainer.model(x_adv)
+            self.lds = self._adv_distance(pred, p_adv_logit)
             self.trainer.model.apply(self.set_bn_train)
 
     def before_backward(self):
