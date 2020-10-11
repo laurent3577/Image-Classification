@@ -25,11 +25,13 @@ class VAT(Hook):
     def set_bn_eval(m):
         if isinstance(m, nn.modules.batchnorm._BatchNorm):
             m.eval()
+            m.track_running_stats = False
 
     @staticmethod
     def set_bn_train(m):
         if isinstance(m, nn.modules.batchnorm._BatchNorm):
             m.train()
+            m.track_running_stats = True
 
     def _adv_distance(self, target, p_logit):
         logp_hat = F.log_softmax(p_logit, dim=1)
@@ -41,6 +43,7 @@ class VAT(Hook):
         for m in self.trainer.model.modules():
             if isinstance(m, nn.modules.batchnorm._BatchNorm):
                 print(m, m.training)
+            break
         x = self.trainer.input["img"]
         with torch.no_grad():
             pred = F.softmax(self.trainer.model(x), dim=1).detach()
@@ -62,3 +65,7 @@ class VAT(Hook):
         lds = self._adv_distance(pred, p_adv_logit)
         self.trainer.loss += self.alpha * lds
         self.trainer.model.apply(self.set_bn_train)
+        for m in self.trainer.model.modules():
+            if isinstance(m, nn.modules.batchnorm._BatchNorm):
+                print(m, m.training)
+            break
