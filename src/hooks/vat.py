@@ -31,7 +31,7 @@ class VAT(Hook):
     def set_bn_train(m):
         if isinstance(m, nn.modules.batchnorm._BatchNorm):
             m.train()
-            m.track_running_stats = True
+            # m.track_running_stats = True
 
     def _adv_distance(self, target, p_logit):
         logp_hat = F.log_softmax(p_logit, dim=1)
