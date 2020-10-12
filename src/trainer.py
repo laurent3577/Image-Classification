@@ -6,6 +6,7 @@ import torch
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import torch.nn as nn
 
 class Trainer():
     def __init__(self, model, train_loader, val_loader, optim, scheduler, loss_fn, hooks, config):
@@ -57,12 +58,20 @@ class Trainer():
         else:
             return x.to(self.device)
 
+    @staticmethod
+    def set_bn_no_stats(m):
+        if isinstance(m, nn.modules.batchnorm._BatchNorm):
+            m.track_running_stats = False
+            m.running_mean = None
+            m.running_var = None
+
     def _process_epoch(self):
         if self.in_train:
             self.model.train()
             self.pbar = tqdm(self.train_loader)
         else:
             self.model.eval()
+            self.model.apply(self.set_bn_no_stats)
             self.pbar = tqdm(self.val_loader)
         for batch in self.pbar:
             if self.in_train:
