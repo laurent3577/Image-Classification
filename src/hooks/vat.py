@@ -9,6 +9,7 @@ class VAT(Hook):
     Implements Virtual Adversarial Training regularization introduced in
     https://arxiv.org/pdf/1704.03976.pdf
     """
+
     def __init__(self, alpha=1, xi=1e-6, eps=2.0, K=1):
         self.xi = xi
         self.eps = eps
@@ -35,11 +36,11 @@ class VAT(Hook):
 
     def _adv_distance(self, target, p_logit):
         logp_hat = F.log_softmax(p_logit, dim=1)
-        adv_distance = F.kl_div(logp_hat, target, reduction='batchmean')
+        adv_distance = F.kl_div(logp_hat, target, reduction="batchmean")
         return adv_distance
 
     def before_backward(self):
-        self.trainer.model.apply(self.set_bn_eval) # disable batch stats update
+        self.trainer.model.apply(self.set_bn_eval)  # disable batch stats update
         x = self.trainer.input["img"]
         with torch.no_grad():
             pred = F.softmax(self.trainer.model(x), dim=1).detach()

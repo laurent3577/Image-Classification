@@ -3,6 +3,7 @@ from torch.optim import swa_utils
 from copy import deepcopy
 import torch
 
+
 class SWA(Hook):
     def __init__(self, epoch_start, swa_lr, anneal_epoch):
         self.epoch_start = epoch_start
@@ -12,8 +13,10 @@ class SWA(Hook):
     def train_begin(self):
         self.swa_model = swa_utils.AveragedModel(self.trainer.model)
         swa_epochs = self.trainer.config.OPTIM.EPOCH - self.epoch_start
-        anneal_epoch = int(swa_epochs*self.anneal_epoch)
-        self.swa_scheduler = swa_utils.SWALR(self.trainer.optim, swa_lr=self.swa_lr, anneal_epochs=anneal_epoch)
+        anneal_epoch = int(swa_epochs * self.anneal_epoch)
+        self.swa_scheduler = swa_utils.SWALR(
+            self.trainer.optim, swa_lr=self.swa_lr, anneal_epochs=anneal_epoch
+        )
 
     def epoch_end(self):
         if self.trainer.epoch > self.epoch_start:
@@ -39,7 +42,7 @@ class SWA(Hook):
             module.num_batches_tracked *= 0
 
         for input in self.trainer.train_loader:
-            input = input['img']
+            input = input["img"]
             input = input.to(self.trainer.device)
             self.swa_model(input)
 
