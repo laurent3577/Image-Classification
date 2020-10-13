@@ -40,7 +40,7 @@ class VAT(Hook):
         return adv_distance
 
     def before_backward(self):
-        self.trainer.model.apply(self.set_bn_eval)  # disable batch stats update
+        # self.trainer.model.apply(self.set_bn_eval)  # disable batch stats update
         x = self.trainer.input["img"]
         with torch.no_grad():
             pred = F.softmax(self.trainer.model(x), dim=1).detach()
@@ -61,4 +61,4 @@ class VAT(Hook):
         p_adv_logit = self.trainer.model(x_adv)
         lds = self._adv_distance(pred, p_adv_logit)
         self.trainer.loss += self.alpha * lds
-        self.trainer.model.apply(self.set_bn_train)
+        # self.trainer.model.apply(self.set_bn_train)
