@@ -57,7 +57,7 @@ class KnowledgeDistillation(Hook):
 
 class MEAL_V2(KnowledgeDistillation):
     def __init__(self, teacher_path, n_classes):
-        super(MEAL_V2, self).__init__(teacher_path, coeff)
+        super(MEAL_V2, self).__init__(teacher_path, coeff=None)
         K = 2
         self.discriminator = nn.Sequential(
             nn.Linear(n_classes, n_classes // K),
