@@ -76,8 +76,8 @@ class MEAL_V2(KnowledgeDistillation):
 
     def get_discr_loss(self):
         # TO DO DEFINE DISCR LOSS
-        x = torch.stack([self.trainer.output, self.trainer.input["teacher_targets"]])
-        y = torch.cat([torch.zeros(self.trainer.output.size(0)), torch.ones(self.trainer.output.size(0))]).to(x.device)
+        x = torch.cat((self.discriminator(self.trainer.output), self.discriminator(self.trainer.input["teacher_targets"])))
+        y = torch.cat((torch.zeros(self.trainer.output.size(0)), torch.ones(self.trainer.output.size(0)))).to(x.device)
         return self.discr_loss(x,y)
 
     def before_backward(self):
