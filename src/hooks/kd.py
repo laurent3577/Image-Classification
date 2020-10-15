@@ -10,7 +10,7 @@ import torch.nn.functional as F
 
 class KnowledgeDistillation(Hook):
     def __init__(self, teacher_path, coeff):
-        self.teachers = [load_from_path(path) for path in teacher_path]
+        self.teachers = [load_from_path(path) for path in teacher_path.split(" ")]
         self.coeff = coeff
         self.teacher_targets = {}
 
