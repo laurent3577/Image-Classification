@@ -53,7 +53,7 @@ _C.LR_FINDER.MAX_LR = 1.0
 _C.KD = CN()
 _C.KD.USE = False
 _C.KD.COEFF = 1
-_C.KD.TEACHER_PATH = ""
+_C.KD.TEACHER_PATH = ()
 # VAT
 _C.VAT = CN()
 _C.VAT.USE = False
@@ -62,7 +62,7 @@ _C.VAT.K = 1
 # MEAL
 _C.MEAL = CN()
 _C.MEAL.USE = False
-_C.MEAL.TEACHER_PATH = ""
+_C.MEAL.TEACHER_PATH = ()
 
 
 def update_config(cfg, args):
