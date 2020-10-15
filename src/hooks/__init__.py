@@ -1,6 +1,6 @@
 from .hooks_core import *
 from .swa import SWA
-from .kd import KnowledgeDistillation
+from .kd import KnowledgeDistillation, MEAL_V2
 from .vat import VAT
 
 
@@ -14,5 +14,7 @@ def build_hooks(config):
         hooks.append(KnowledgeDistillation(config.KD.TEACHER_PATH, config.KD.COEFF))
     if config.VAT.USE:
         hooks.append(VAT(eps=config.VAT.EPS, K=config.VAT.K))
+    if config.MEAL.USE:
+        hooks.append(MEAL_V2(config.MEAL.TEACHER_PATH, config.MODEL.NUM_CLASSES))
     hooks.append(Logging())  # logging needs to be last on the list
     return hooks

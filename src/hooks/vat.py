@@ -26,13 +26,11 @@ class VAT(Hook):
     def set_bn_eval(m):
         if isinstance(m, nn.modules.batchnorm._BatchNorm):
             m.eval()
-            m.track_running_stats = False
 
     @staticmethod
     def set_bn_train(m):
         if isinstance(m, nn.modules.batchnorm._BatchNorm):
             m.train()
-            m.track_running_stats = True
 
     def _adv_distance(self, target, p_logit):
         logp_hat = F.log_softmax(p_logit, dim=1)
@@ -40,6 +38,7 @@ class VAT(Hook):
         return adv_distance
 
     def before_backward(self):
+        # TO DO FIX DISABLING OF BATCH STATS UPDATE DURING PERTURBATION GENERATION
         # self.trainer.model.apply(self.set_bn_eval)  # disable batch stats update
         x = self.trainer.input["img"]
         with torch.no_grad():

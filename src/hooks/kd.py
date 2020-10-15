@@ -31,7 +31,7 @@ class KnowledgeDistillation(Hook):
                 pred = torch.mean(
                     torch.stack(
                         [
-                            F.softmax(teacher(sample["img"]), 1)
+                            teacher(sample["img"])
                             for teacher in self.teachers
                         ]
                     ),
@@ -50,13 +50,13 @@ class KnowledgeDistillation(Hook):
 
     def before_backward(self):
         kd_loss = torch.pow(
-            F.softmax(self.trainer.output, 1) - self.trainer.input["teacher_targets"], 2
+            F.softmax(self.trainer.output, 1) - F.softmax(self.trainer.input["teacher_targets"],1), 2
         ).mean()
         self.trainer.loss += self.coeff * kd_loss
 
 
 class MEAL_V2(KnowledgeDistillation):
-    def __init__(self, teacher_path, coeff, n_classes):
+    def __init__(self, teacher_path, n_classes):
         super(MEAL_V2, self).__init__(teacher_path, coeff)
         K = 2
         self.discriminator = nn.Sequential(
@@ -66,6 +66,7 @@ class MEAL_V2(KnowledgeDistillation):
             nn.ReLU(),
             nn.Linear(n_classes // K ** 2, 1),
         )
+        self.discr_loss = nn.BCEWithLogitsLoss()
 
     def train_begin(self):
         super(MEAL_V2, self).train_begin()
@@ -75,11 +76,13 @@ class MEAL_V2(KnowledgeDistillation):
 
     def get_discr_loss(self):
         # TO DO DEFINE DISCR LOSS
-        raise NotImplementedError
+        x = torch.stack([self.trainer.output, self.trainer.input["teacher_targets"]])
+        y = torch.cat([torch.zeros(self.trainer.output.size(0)), torch.ones(self.trainer.output.size(0))]).to(x.device)
+        return self.discr_loss(x,y)
 
     def before_backward(self):
         kld_loss = -torch.sum(
-            self.trainer.input["teacher_targets"] * F.log_softmax(self.trainer.output),
+            F.softmax(self.trainer.input["teacher_targets"],1) * F.log_softmax(self.trainer.output,1),
             dim=1,
         ).mean()
         discr_loss = self.get_discr_loss()

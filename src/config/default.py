@@ -59,6 +59,10 @@ _C.VAT = CN()
 _C.VAT.USE = False
 _C.VAT.EPS = 2.0
 _C.VAT.K = 1
+# MEAL
+_C.MEAL = CN()
+_C.MEAL.USE = False
+_C.MEAL.TEACHER_PATH = ""
 
 
 def update_config(cfg, args):
