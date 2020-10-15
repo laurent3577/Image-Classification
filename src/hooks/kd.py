@@ -86,4 +86,4 @@ class MEAL_V2(KnowledgeDistillation):
             dim=1,
         ).mean()
         discr_loss = self.get_discr_loss()
-        self.trainer.loss = kld_loss + discr_loss
+        self.trainer.loss += kld_loss + discr_loss
