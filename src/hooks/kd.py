@@ -70,12 +70,11 @@ class MEAL_V2(KnowledgeDistillation):
 
     def train_begin(self):
         super(MEAL_V2, self).train_begin()
-        self.trainer.optim.add_param_group(
-            {"params": self.discriminator.parameters(), "lr": 1e-6}
-        )
+        # self.trainer.optim.add_param_group(
+        #     {"params": self.discriminator.parameters(), "lr": 1e-6}
+        # )
 
     def get_discr_loss(self):
-        # TO DO DEFINE DISCR LOSS
         x = torch.cat((self.discriminator(self.trainer.output), self.discriminator(self.trainer.input["teacher_targets"])))
         y = torch.cat((torch.zeros(self.trainer.output.size(0),1), torch.ones(self.trainer.output.size(0),1))).to(x.device)
         return self.discr_loss(x,y)
@@ -85,5 +84,5 @@ class MEAL_V2(KnowledgeDistillation):
             F.softmax(self.trainer.input["teacher_targets"],1) * F.log_softmax(self.trainer.output,1),
             dim=1,
         ).mean()
-        discr_loss = self.get_discr_loss()
-        self.trainer.loss += kld_loss + discr_loss
+        # discr_loss = self.get_discr_loss()
+        self.trainer.loss = kld_loss #+ discr_loss
