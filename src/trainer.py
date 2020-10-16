@@ -148,6 +148,10 @@ class Trainer:
         torch.save({"cfg": self.config, "params": self.model.state_dict()}, save_path)
 
     def update_optim(self, **kwargs):
+        """
+        Base_lr will always be the lr of param_group[0] that contains the parameter of the base model.
+        When changing base_lr only that param group will be affected.
+        """
         build_opt_params = {
             "param_groups": self.optim.param_groups,
             "optimizer_name": self.config.OPTIM.OPTIMIZER,
@@ -181,6 +185,7 @@ class Trainer:
         self.config.defrost()
         self.config.merge_from_list(update_config)
         self.config.freeze()
-        print(self.config)
+        if "base_lr" in kwargs:
+            build_opt_params["param_groups"][0]["lr"] = build_opt_params["base_lr"]
 
         self.optim, self.scheduler = build_opt(**build_opt_params)
