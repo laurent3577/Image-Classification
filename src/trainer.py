@@ -24,7 +24,6 @@ class Trainer:
         self.config = config
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model = self.model.to(self.device)
-        self.update_optim_count = 0
 
     def _register_hooks(self, hooks):
         self.hooks = hooks
@@ -122,7 +121,8 @@ class Trainer:
 
     def lr_finder(self, min_lr=1e-7, max_lr=10, nb_iter=500):
         self.update_optim(
-            base_lr=min_lr,scheduler_name="Exp",
+            base_lr=min_lr,
+            scheduler_name="Exp",
             gamma=float(np.exp(np.log(max_lr / min_lr) / nb_iter))
             )
         self._add_hooks(
@@ -148,9 +148,6 @@ class Trainer:
         torch.save({"cfg": self.config, "params": self.model.state_dict()}, save_path)
 
     def update_optim(self, **kwargs):
-        self.update_optim_count += 1
-        if self.update_optim_count > 1:
-            print("WARNING: Except for param_groups, all optimizer arguments non updated with current call will be reset to original config values")
         build_opt_params = {
             "param_groups": self.optim.param_groups,
             "optimizer_name": self.config.OPTIM.OPTIMIZER,
@@ -164,7 +161,23 @@ class Trainer:
             "epochs": self.config.OPTIM.EPOCH,
             "steps_per_epoch": len(self.train_loader)
         }
+        config_map = {
+            "optimizer_name": "OPTIM.OPTIMIZER";
+            "base_lr": "OPTIM.BASE_LR",
+            "weight_decay": "OPTIM.WEIGHT_DECAY",
+            "scheduler_name": "OPTIM.SCHEDULER.TYPE",
+            "step_size": "OPTIM.SCHEDULER.STEP_SIZE",
+            "gamma": "OPTIM.SCHEDULER.GAMMA",
+            "cosine_lr_min": "OPTIM.SCHEDULER.COSINE_LR_MIN",
+            "cycle_div_factor": "OPTIM.SCHEDULER.CYCLE_DIV_FACTOR",
+            "epochs": "OPTIM.EPOCH"
+        }
+        update_config = []
         for k,v in kwargs.items():
             build_opt_params[k] = v
+            update_config += [config_map[k], v]
 
+        self.config.defrost()
+        self.config.merge_from_list(update_config)
+        self.config.freeze()
         self.optim, self.scheduler = build_opt(**build_opt_params)

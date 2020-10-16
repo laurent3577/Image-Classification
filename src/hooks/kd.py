@@ -71,7 +71,7 @@ class MEAL_V2(KnowledgeDistillation):
     def train_begin(self):
         super(MEAL_V2, self).train_begin()
         new_param_groups = self.trainer.optim.param_groups
-        new_param_groups.append({"params": self.discriminator.parameters(), "lr": 1e-6})
+        new_param_groups.append({"params": self.discriminator.parameters(), "lr": self.trainer.config.OPTIM.BASE_LR/100})
         self.trainer.update_optim(param_groups=new_param_groups)
         self.discriminator.to(self.trainer.device)
 
