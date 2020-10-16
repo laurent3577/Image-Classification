@@ -16,11 +16,11 @@ def build_opt(
 ):
     if optimizer_name == "Adam":
         optimizer = optim.Adam(
-            parameter_groups, lr=base_lr, weight_decay=weight_decay
+            param_groups, lr=base_lr, weight_decay=weight_decay
         )
     elif optimizer_name == "SGD":
         optimizer = optim.SGD(
-            parameter_groups,
+            param_groups,
             lr=base_lr,
             weight_decay=weight_decay,
             momentum=0.9,
@@ -28,7 +28,7 @@ def build_opt(
         )
     elif optimizer_name == "AdamW":
         optimizer = optim.AdamW(
-            parameter_groups, lr=base_lr, weight_decay=weight_decay
+            param_groups, lr=base_lr, weight_decay=weight_decay
         )
     else:
         raise ValueError("{} unknown optimizer type".format(optimizer_name))
