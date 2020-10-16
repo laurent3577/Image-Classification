@@ -175,10 +175,11 @@ class Trainer:
         update_config = []
         for k,v in kwargs.items():
             build_opt_params[k] = v
-            update_config += [config_map[k], v]
+            if k in config_map:
+                update_config += [config_map[k], v]
 
         self.config.defrost()
         self.config.merge_from_list(update_config)
         self.config.freeze()
-        print(self.config)
+
         self.optim, self.scheduler = build_opt(**build_opt_params)
