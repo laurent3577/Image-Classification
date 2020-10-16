@@ -159,7 +159,7 @@ class Trainer:
             "scheduler_name": self.config.OPTIM.SCHEDULER.TYPE,
             "step_size": self.config.OPTIM.SCHEDULER.STEP_SIZE,
             "gamma": self.config.OPTIM.SCHEDULER.GAMMA,
-            "cosine_lr_min": self.condif.OPTIM.SCHEDULER.COSINE_LR_MIN,
+            "cosine_lr_min": self.config.OPTIM.SCHEDULER.COSINE_LR_MIN,
             "cycle_div_factor": self.config.OPTIM.SCHEDULER.CYCLE_DIV_FACTOR,
             "epochs": self.config.OPTIM.EPOCH,
             "steps_per_epoch": len(self.train_loader)
