@@ -162,7 +162,7 @@ class Trainer:
             "steps_per_epoch": len(self.train_loader)
         }
         config_map = {
-            "optimizer_name": "OPTIM.OPTIMIZER";
+            "optimizer_name": "OPTIM.OPTIMIZER",
             "base_lr": "OPTIM.BASE_LR",
             "weight_decay": "OPTIM.WEIGHT_DECAY",
             "scheduler_name": "OPTIM.SCHEDULER.TYPE",
@@ -180,4 +180,5 @@ class Trainer:
         self.config.defrost()
         self.config.merge_from_list(update_config)
         self.config.freeze()
+        print(config)
         self.optim, self.scheduler = build_opt(**build_opt_params)
