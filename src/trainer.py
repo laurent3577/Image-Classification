@@ -153,7 +153,7 @@ class Trainer:
         When changing base_lr only that param group will be affected.
         """
         build_opt_params = {
-            "param_groups": self.optim.param_groups,
+            "param_groups": [{'params':pg['params'], 'lr':pg['lr']} for pg in self.optim.param_groups],
             "optimizer_name": self.config.OPTIM.OPTIMIZER,
             "base_lr": self.config.OPTIM.BASE_LR,
             "weight_decay": self.config.OPTIM.WEIGHT_DECAY,
