@@ -73,6 +73,7 @@ def main():
     )
 
     opt, scheduler = build_opt(
+        param_groups = [{'params': model.parameters()}],
         optimizer_name=config.OPTIM.OPTIMIZER,
         base_lr=config.OPTIM.BASE_LR,
         weight_decay=config.OPTIM.WEIGHT_DECAY,
@@ -83,7 +84,6 @@ def main():
         cycle_div_factor=config.OPTIM.SCHEDULER.CYCLE_DIV_FACTOR,
         epochs=config.OPTIM.EPOCH,
         steps_per_epoch=len(train_loader),
-        model=model,
     )
 
     loss_fn = nn.CrossEntropyLoss()

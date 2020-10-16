@@ -70,10 +70,9 @@ class MEAL_V2(KnowledgeDistillation):
 
     def train_begin(self):
         super(MEAL_V2, self).train_begin()
-        self.trainer.optim.add_param_group(
-            {"params": self.discriminator.parameters(), "lr": 1e-6}
-        )
-        # TO DO ADD FUNCTION TO TRAINER TO UPDATE OPTIMIZER
+        new_param_groups = self.trainer.optim.param_groups
+        new_param_groups.append({"params": self.discriminator.parameters(), "lr": 1e-6})
+        self.trainer.update_optim(param_groups=new_param_groups)
         self.discriminator.to(self.trainer.device)
 
     def get_discr_loss(self):
