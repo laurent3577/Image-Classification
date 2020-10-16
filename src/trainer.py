@@ -123,8 +123,8 @@ class Trainer:
         self.update_optim(
             base_lr=min_lr,
             scheduler_name="Exp",
-            gamma=float(np.exp(np.log(max_lr / min_lr) / nb_iter))
-            )
+            gamma=float(np.exp(np.log(max_lr / min_lr) / nb_iter)),
+        )
         self._add_hooks(
             [EarlyStop(iter_stop=nb_iter), LRCollect("list"), LossCollect("list")]
         )
@@ -149,11 +149,13 @@ class Trainer:
 
     def update_optim(self, **kwargs):
         """
-        Base_lr will always be the lr of param_group[0] that contains the parameter of the base model.
-        When changing base_lr only that param group will be affected.
+        Base_lr affects basemodel parameters and all param groups for which lr was not set.
         """
         build_opt_params = {
-            "param_groups": [{'params':pg['params'], 'lr':pg['lr']} for pg in self.optim.param_groups],
+            "param_groups": [
+                {"params": pg["params"], "lr": pg["lr"]}
+                for pg in self.optim.param_groups
+            ],
             "optimizer_name": self.config.OPTIM.OPTIMIZER,
             "base_lr": self.config.OPTIM.BASE_LR,
             "weight_decay": self.config.OPTIM.WEIGHT_DECAY,
@@ -163,7 +165,7 @@ class Trainer:
             "cosine_lr_min": self.config.OPTIM.SCHEDULER.COSINE_LR_MIN,
             "cycle_div_factor": self.config.OPTIM.SCHEDULER.CYCLE_DIV_FACTOR,
             "epochs": self.config.OPTIM.EPOCH,
-            "steps_per_epoch": len(self.train_loader)
+            "steps_per_epoch": len(self.train_loader),
         }
         config_map = {
             "optimizer_name": "OPTIM.OPTIMIZER",
@@ -174,10 +176,10 @@ class Trainer:
             "gamma": "OPTIM.SCHEDULER.GAMMA",
             "cosine_lr_min": "OPTIM.SCHEDULER.COSINE_LR_MIN",
             "cycle_div_factor": "OPTIM.SCHEDULER.CYCLE_DIV_FACTOR",
-            "epochs": "OPTIM.EPOCH"
+            "epochs": "OPTIM.EPOCH",
         }
         update_config = []
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             build_opt_params[k] = v
             if k in config_map:
                 update_config += [config_map[k], v]

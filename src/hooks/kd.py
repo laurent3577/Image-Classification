@@ -29,12 +29,7 @@ class KnowledgeDistillation(Hook):
             for sample in pbar:
                 sample = self.trainer._to_device(sample)
                 pred = torch.mean(
-                    torch.stack(
-                        [
-                            teacher(sample["img"])
-                            for teacher in self.teachers
-                        ]
-                    ),
+                    torch.stack([teacher(sample["img"]) for teacher in self.teachers]),
                     dim=0,
                 )
                 for i, p in zip(sample["index"], pred):
@@ -50,7 +45,9 @@ class KnowledgeDistillation(Hook):
 
     def before_backward(self):
         kd_loss = torch.pow(
-            F.softmax(self.trainer.output, 1) - F.softmax(self.trainer.input["teacher_targets"],1), 2
+            F.softmax(self.trainer.output, 1)
+            - F.softmax(self.trainer.input["teacher_targets"], 1),
+            2,
         ).mean()
         self.trainer.loss += self.coeff * kd_loss
 
@@ -70,21 +67,37 @@ class MEAL_V2(KnowledgeDistillation):
 
     def train_begin(self):
         new_param_groups = self.trainer.optim.param_groups
-        new_param_groups.append({"params": self.discriminator.parameters(), "lr": self.trainer.config.OPTIM.BASE_LR/100})
+        new_param_groups.append(
+            {
+                "params": self.discriminator.parameters(),
+                "lr": self.trainer.config.OPTIM.BASE_LR / 100,
+            }
+        )
         self.trainer.update_optim(param_groups=new_param_groups)
         self.discriminator.to(self.trainer.device)
         super(MEAL_V2, self).train_begin()
 
     def get_discr_loss(self):
-        x = torch.cat((self.discriminator(self.trainer.output), self.discriminator(self.trainer.input["teacher_targets"])))
-        y = torch.cat((torch.zeros(self.trainer.output.size(0),1), torch.ones(self.trainer.output.size(0),1))).to(x.device)
-        return self.discr_loss(x,y)
+        x = torch.cat(
+            (
+                self.discriminator(self.trainer.output),
+                self.discriminator(self.trainer.input["teacher_targets"]),
+            )
+        )
+        y = torch.cat(
+            (
+                torch.zeros(self.trainer.output.size(0), 1),
+                torch.ones(self.trainer.output.size(0), 1),
+            )
+        ).to(x.device)
+        return self.discr_loss(x, y)
 
     def before_backward(self):
         kld_loss = -torch.sum(
-            F.softmax(self.trainer.input["teacher_targets"],1) * F.log_softmax(self.trainer.output,1),
+            F.softmax(self.trainer.input["teacher_targets"], 1)
+            * F.log_softmax(self.trainer.output, 1),
             dim=1,
         ).mean()
         discr_loss = self.get_discr_loss()
-        print(discr_loss.device)
+
         self.trainer.loss = kld_loss + discr_loss

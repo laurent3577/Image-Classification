@@ -15,9 +15,7 @@ def build_opt(
     steps_per_epoch=800,
 ):
     if optimizer_name == "Adam":
-        optimizer = optim.Adam(
-            param_groups, lr=base_lr, weight_decay=weight_decay
-        )
+        optimizer = optim.Adam(param_groups, lr=base_lr, weight_decay=weight_decay)
     elif optimizer_name == "SGD":
         optimizer = optim.SGD(
             param_groups,
@@ -27,9 +25,7 @@ def build_opt(
             nesterov=True,
         )
     elif optimizer_name == "AdamW":
-        optimizer = optim.AdamW(
-            param_groups, lr=base_lr, weight_decay=weight_decay
-        )
+        optimizer = optim.AdamW(param_groups, lr=base_lr, weight_decay=weight_decay)
     else:
         raise ValueError("{} unknown optimizer type".format(optimizer_name))
 

@@ -73,7 +73,7 @@ def main():
     )
 
     opt, scheduler = build_opt(
-        param_groups = [{'params': model.parameters()}],
+        param_groups=[{"params": model.parameters()}],
         optimizer_name=config.OPTIM.OPTIMIZER,
         base_lr=config.OPTIM.BASE_LR,
         weight_decay=config.OPTIM.WEIGHT_DECAY,
