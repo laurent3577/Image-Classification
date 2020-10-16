@@ -181,5 +181,6 @@ class Trainer:
         self.config.defrost()
         self.config.merge_from_list(update_config)
         self.config.freeze()
+        print(self.config)
 
         self.optim, self.scheduler = build_opt(**build_opt_params)
