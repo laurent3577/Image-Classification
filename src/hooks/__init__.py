@@ -5,7 +5,7 @@ from .vat import VAT
 
 
 def build_hooks(config):
-    hooks = [Validation(), LRCollect(), AccCollect(), LossCollect()]
+    hooks = [Validation(), LRCollect(), AccCollect(), LossCollect(), Logging()]
     if config.SWA.USE:
         hooks.append(
             SWA(config.SWA.EPOCH_START, config.SWA.LR, config.SWA.ANNEAL_EPOCH)
@@ -16,5 +16,4 @@ def build_hooks(config):
         hooks.append(MEAL_V2(config.MEAL.TEACHER_PATH, config.MODEL.NUM_CLASSES))
     if config.VAT.USE:
         hooks.append(VAT(eps=config.VAT.EPS, K=config.VAT.K))
-    hooks.append(Logging())  # logging needs to be last on the list
     return hooks

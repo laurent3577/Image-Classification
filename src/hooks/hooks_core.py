@@ -1,6 +1,9 @@
 import os
 from ..utils import *
 
+def apply_last(func):
+    func.apply_rank = -1
+    return func
 
 class Hook:
     def __str__(self):
@@ -91,6 +94,7 @@ class Logging(Hook):
             )
             self.trainer.to_plot = []
 
+    @apply_last
     def batch_end(self):
         if self.trainer.in_train:
             self.trainer.pbar.set_description(
@@ -142,6 +146,7 @@ class Logging(Hook):
             self.plotter.plot(*plot)
         self.trainer.to_plot = []
 
+    @apply_last
     def val_end(self):
         self._plot()
 

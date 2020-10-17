@@ -1,4 +1,4 @@
-from . import Hook
+from . import Hook, apply_last
 from torch.optim import swa_utils
 from copy import deepcopy
 import torch
@@ -10,6 +10,7 @@ class SWA(Hook):
         self.swa_lr = swa_lr
         self.anneal_epoch = anneal_epoch
 
+    @apply_last
     def train_begin(self):
         self.swa_model = swa_utils.AveragedModel(self.trainer.model)
         swa_epochs = self.trainer.config.OPTIM.EPOCH - self.epoch_start

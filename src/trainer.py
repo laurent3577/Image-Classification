@@ -45,6 +45,7 @@ class Trainer:
 
     def _hook(self, method):
         out = False
+        self.hooks.sort(key=lambda hk: getattr(getattr(hk, method),"apply_rank",1),reverse=True)
         for hk in self.hooks:
             try:
                 out = out or getattr(hk, method)()
