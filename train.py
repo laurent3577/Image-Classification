@@ -32,6 +32,30 @@ def parse_args():
 
     return args
 
+def evaluate(model, config):
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    transforms = [("Resize", {"size": config.DATASET.INPUT_SIZE})]
+
+    dataset = build_dataset(config, split="test", transform=transforms)
+    sampler = SequentialSampler(dataset)
+    loader = DataLoader(dataset, batch_size=32, sampler=sampler)
+
+    model.eval()
+    accuracy = 0
+    total = 0
+    with torch.no_grad():
+        for batch in tqdm(loader):
+            img = batch['img'].to(device)
+            target = batch['target'].to(device)
+            outputs = model(img)
+            accuracy += acc(outputs, target)
+            total += outputs.size(0)
+
+    print(
+        "Test Results\n------------\nAccuracy: {0:.2f} ({1}/{2})".format(
+            accuracy / len(loader) * 100, int(accuracy / len(loader) * total), total
+        )
+    )
 
 def main():
     args = parse_args()
@@ -98,6 +122,9 @@ def main():
         )
     else:
         trainer.train(epoch=config.OPTIM.EPOCH)
+        print("------- Training completed ------------")
+        print("Running evaluation on test set")
+        evaluate(model, config)
 
 
 if __name__ == "__main__":
