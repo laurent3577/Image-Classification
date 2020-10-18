@@ -15,8 +15,11 @@ class SWA(Hook):
         self.swa_model = swa_utils.AveragedModel(self.trainer.model)
         swa_epochs = self.trainer.config.OPTIM.EPOCH - self.epoch_start
         anneal_epoch = int(swa_epochs * self.anneal_epoch)
+        swa_lrs = [self.swa_lr]
+        for pg in self.trainer.optim.param_groups[1:]:
+            swa_lrs.append(pg['lr']/100)
         self.swa_scheduler = swa_utils.SWALR(
-            self.trainer.optim, swa_lr=self.swa_lr, anneal_epochs=anneal_epoch
+            self.trainer.optim, swa_lr=swa_lrs, anneal_epochs=anneal_epoch
         )
 
     def epoch_end(self):
