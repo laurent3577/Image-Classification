@@ -53,8 +53,8 @@ class KnowledgeDistillation(Hook):
 
 
 class MEAL_V2(KnowledgeDistillation):
-    def __init__(self, teacher_path, n_classes):
-        super(MEAL_V2, self).__init__(teacher_path, coeff=None)
+    def __init__(self, teacher_path, n_classes, coeff=0):
+        super(MEAL_V2, self).__init__(teacher_path, coeff)
         K = 2
         self.discriminator = nn.Sequential(
             nn.Linear(n_classes, n_classes // K),
@@ -99,5 +99,8 @@ class MEAL_V2(KnowledgeDistillation):
             dim=1,
         ).mean()
         discr_loss = self.get_discr_loss()
-
-        self.trainer.loss = kld_loss + discr_loss
+        if self.coeff:
+            self.trainer.loss *= self.coeff
+            self.trainer.loss += kld_loss + discr_loss
+        else:   # in original paper MEAL doesn't use supervision from hard labels
+            self.trainer.loss = kld_loss + discr_loss
