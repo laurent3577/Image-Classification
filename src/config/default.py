@@ -63,7 +63,7 @@ _C.VAT.K = 1
 _C.MEAL = CN()
 _C.MEAL.USE = False
 _C.MEAL.TEACHER_PATH = ""
-_C.MEAL.COEFF = 0
+_C.MEAL.COEFF = 0.
 
 
 def update_config(cfg, args):
