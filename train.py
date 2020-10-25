@@ -4,11 +4,6 @@ import os
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from torch.utils.data.sampler import (
-    SubsetRandomSampler,
-    SequentialSampler,
-    RandomSampler,
-)
 from src import *
 import numpy as np
 from trains import Task
@@ -69,29 +64,20 @@ def main():
     if config.PRINT_MODEL:
         print(model)
 
-    transforms = [
+    train_transforms = [
         ("RandomResizedCrop", {"size": config.DATASET.INPUT_SIZE, "scale": (0.5, 1.0)}),
         ("Perspective", None),
         ("HorizontalFlip", None),
         ("VerticalFlip", None),
     ]
     val_transforms = [("Resize", {"size": config.DATASET.INPUT_SIZE})]
-    dataset = build_dataset(config, split="train", transform=transforms)
+    train_dataset = build_dataset(config, split="train", transform=train_transforms)
     val_dataset = build_dataset(config, split="val", transform=val_transforms)
-    train_sampler = RandomSampler(dataset)
-    val_sampler = SequentialSampler(val_dataset)
-    if getattr(val_dataset, "val_from_train", False):
-        num_train = len(dataset)
-        indices = list(range(num_train))
-        np.random.seed(config.RANDOM_SEED)
-        np.random.shuffle(indices)
-        split = int(np.floor(config.DATASET.VAL_SIZE * num_train))
-        train_idx, val_idx = indices[split:], indices[:split]
-        train_sampler = SubsetRandomSampler(train_idx)
-        val_sampler = SubsetRandomSampler(val_idx)
+
+    train_sampler, val_sampler = build_samplers(train_dataset, val_dataset, config)
 
     train_loader = DataLoader(
-        dataset, batch_size=config.OPTIM.BATCH_SIZE, sampler=train_sampler
+        train_dataset, batch_size=config.OPTIM.BATCH_SIZE, sampler=train_sampler
     )
     val_loader = DataLoader(
         val_dataset, batch_size=config.OPTIM.BATCH_SIZE, sampler=val_sampler
