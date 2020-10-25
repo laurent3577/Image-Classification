@@ -1,5 +1,5 @@
 from torch import optim
-from adabelief import AdaBelief
+from .adabelief import AdaBelief
 
 def build_opt(
     param_groups,
