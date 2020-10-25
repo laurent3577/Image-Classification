@@ -41,19 +41,20 @@ def evaluate(model, config):
     loader = DataLoader(dataset, batch_size=32, sampler=sampler)
 
     model.eval()
-    accuracy = 0
-    total = 0
+    outputs = torch.Tensor()
+    targets = torch.Tensor()
     with torch.no_grad():
         for batch in tqdm(loader):
             img = batch['img'].to(device)
-            target = batch['target'].to(device)
-            outputs = model(img)
-            accuracy += acc(outputs, target)
-            total += outputs.size(0)
+            outputs = torch.cat([outputs, model(img).cpu()])
+            targets = torch.cat([targets, batch['target'].cpu()])
+
+    accuracy = acc(outputs, targets)
+    total = outputs.size(0)
 
     print(
         "Test Results\n------------\nAccuracy: {0:.2f} ({1}/{2})".format(
-            accuracy / len(loader) * 100, int(accuracy / len(loader) * total), total
+            accuracy * 100, int(accuracy * total), total
         )
     )
 

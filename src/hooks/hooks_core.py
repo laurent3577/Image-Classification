@@ -1,4 +1,5 @@
 import os
+import torch
 from ..utils import *
 
 def apply_last(func):
@@ -54,35 +55,38 @@ class Validation(Hook):
         self.best_acc = 0
 
     def val_begin(self):
-        self.accuracy = 0
         self.loss = 0
         self.total = 0
         self.nb_batch = len(self.trainer.val_loader)
+        self.outputs = torch.Tensor()
+        self.targets = torch.Tensor()
 
     def batch_end(self):
         if not self.trainer.in_train:
             self.loss += self.trainer.loss
-            self.accuracy += acc(self.trainer.output, self.trainer.target)
+            self.outputs = torch.cat([self.outputs, self.trainer.output.cpu()])
+            self.targets = torch.cat([self.targets, self.trainer.target.cpu()])
             self.total += self.trainer.output.size(0)
 
     def val_end(self):
-        acc = self.accuracy / self.nb_batch * 100
+        accuracy = acc(self.outputs, self.targets)
         loss = self.loss / self.nb_batch
-        if acc > self.best_acc:
-            self.best_acc = acc
+        if accuracy > self.best_acc:
+            self.best_acc = accuracy
             self.trainer.save_ckpt("best_val.pth")
             print("New best validation accuracy obtained, checkpoint saved.")
         print(
             "Validation results: Acc: {0:.2f} ({1}/{2})   Loss: {3:.4f}".format(
-                acc, int(acc / 100 * self.total), self.total, loss
+                accuracy*100, int(accuracy * self.total), self.total, loss
             )
         )
-        self.trainer.to_plot.append(
-            ["Loss", self.trainer.step, loss, "Val Loss", "Step", "Value"]
-        )
-        self.trainer.to_plot.append(
-            ["Acc", self.trainer.step, acc, "Val Acc", "Step", "Value"]
-        )
+        if self.trainer.config.PLOT:
+            self.trainer.to_plot.append(
+                ["Loss", self.trainer.step, loss, "Val Loss", "Step", "Value"]
+            )
+            self.trainer.to_plot.append(
+                ["Acc", self.trainer.step, accuracy, "Val Acc", "Step", "Value"]
+            )
 
 
 class Logging(Hook):
@@ -148,7 +152,8 @@ class Logging(Hook):
 
     @apply_last
     def val_end(self):
-        self._plot()
+        if self.trainer.config.PLOT:
+            self._plot()
 
 
 class EarlyStop(Hook):
