@@ -1,5 +1,5 @@
 from torch import optim
-
+from adabelief import AdaBelief
 
 def build_opt(
     param_groups,
@@ -26,6 +26,8 @@ def build_opt(
         )
     elif optimizer_name == "AdamW":
         optimizer = optim.AdamW(param_groups, lr=base_lr, weight_decay=weight_decay)
+    elif optimizer_name == "AdaBelief":
+        optimizer = AdaBelief(param_groups, lr=base_lr, weight_decay=weight_decay)
     else:
         raise ValueError("{} unknown optimizer type".format(optimizer_name))
 
