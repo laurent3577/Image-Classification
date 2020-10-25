@@ -2,6 +2,7 @@ import math
 import torch
 from torch.optim.optimizer import Optimizer
 
+version_higher = ( torch.__version__ >= "1.5.0" )
 
 class AdaBelief(Optimizer):
     r"""Implements AdaBelief algorithm. Modified from Adam in PyTorch

@@ -8,8 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch.nn as nn
 
-version_higher = ( torch.__version__ >= "1.5.0" )
-
 class Trainer:
     def __init__(
         self, model, train_loader, val_loader, optim, scheduler, loss_fn, hooks, config
