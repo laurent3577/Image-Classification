@@ -40,7 +40,7 @@ class VAT(Hook):
     def before_backward(self):
         # TO DO FIX DISABLING OF BATCH STATS UPDATE DURING PERTURBATION GENERATION
         # self.trainer.model.apply(self.set_bn_eval)  # disable batch stats update
-        x = self.trainer.input["img"]
+        x = self.trainer.batch["input"]
         with torch.no_grad():
             pred = F.softmax(self.trainer.model(x), dim=1).detach()
 

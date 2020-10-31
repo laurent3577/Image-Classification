@@ -29,7 +29,7 @@ class KnowledgeDistillation(Hook):
             for sample in pbar:
                 sample = self.trainer._to_device(sample)
                 pred = torch.mean(
-                    torch.stack([teacher(sample["img"]) for teacher in self.teachers]),
+                    torch.stack([teacher(sample["input"]) for teacher in self.teachers]),
                     dim=0,
                 )
                 for i, p in zip(sample["index"], pred):
@@ -46,7 +46,7 @@ class KnowledgeDistillation(Hook):
     def before_backward(self):
         kd_loss = torch.pow(
             F.softmax(self.trainer.output, 1)
-            - F.softmax(self.trainer.input["teacher_targets"], 1),
+            - F.softmax(self.trainer.batch["teacher_targets"], 1),
             2,
         ).mean()
         self.trainer.loss += self.coeff * kd_loss
@@ -81,7 +81,7 @@ class MEAL_V2(KnowledgeDistillation):
         x = torch.cat(
             (
                 self.discriminator(self.trainer.output),
-                self.discriminator(self.trainer.input["teacher_targets"]),
+                self.discriminator(self.trainer.batch["teacher_targets"]),
             )
         )
         y = torch.cat(
@@ -94,7 +94,7 @@ class MEAL_V2(KnowledgeDistillation):
 
     def before_backward(self):
         kld_loss = -torch.sum(
-            F.softmax(self.trainer.input["teacher_targets"], 1)
+            F.softmax(self.trainer.batch["teacher_targets"], 1)
             * F.log_softmax(self.trainer.output, 1),
             dim=1,
         ).mean()

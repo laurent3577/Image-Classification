@@ -4,7 +4,7 @@ import os
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from src import *
+from torch_trainer import *
 import numpy as np
 from trains import Task
 

@@ -1,5 +1,5 @@
 import argparse
-from src import load_from_path
+from torch_trainer import load_from_path
 from train import evaluate
 
 

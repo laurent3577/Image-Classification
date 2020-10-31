@@ -6,7 +6,6 @@ import torch
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import torch.nn as nn
 
 class Trainer:
     def __init__(
@@ -71,8 +70,9 @@ class Trainer:
         for batch in self.pbar:
             if self.in_train:
                 self.step += 1
-            self.input = self._to_device(batch)
-            self.target = self.input["target"]
+            self.batch = self._to_device(batch)
+            self.target = self.batch["target"]
+            self.model_kwargs = {}
             self._hook("batch_begin")
             self._process_batch()
             self._hook("batch_end")
@@ -81,7 +81,7 @@ class Trainer:
 
     def _process_batch(self):
         self.optim.zero_grad()
-        self.output = self.model(self.input["img"])
+        self.output = self.model(self.batch["input"], **self.model_kwargs)
         self._hook("before_loss")
         self.loss = self.loss_fn(self.output, self.target)
         if self.in_train:

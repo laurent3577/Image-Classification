@@ -5,7 +5,7 @@ from PIL import Image
 import numpy as np
 
 
-class BaseDataset(Dataset):
+class BaseImageDataset(Dataset):
     def __init__(
         self,
         data_dir,
@@ -33,7 +33,7 @@ class BaseDataset(Dataset):
         if self.target_transform is not None:
             target = self.target_transform(target)
 
-        sample = {"index": index, "img": img, "target": target}
+        sample = {"index": index, "input": img, "target": target}
 
         for add_fn in self.add_to_sample:
             sample = add_fn(sample)
@@ -46,7 +46,7 @@ class BaseDataset(Dataset):
         raise NotImplementedError
 
 
-class CIFAR100(BaseDataset):
+class CIFAR100(BaseImageDataset):
     def __init__(self, data_dir, split, transforms, target_transform):
         super(CIFAR100, self).__init__(data_dir, split, transforms, target_transform)
         if split == "val":
@@ -63,7 +63,7 @@ class CIFAR100(BaseDataset):
         ).targets
 
 
-class CIFAR10(BaseDataset):
+class CIFAR10(BaseImageDataset):
     def __init__(self, data_dir, split, transforms, target_transform):
         super(CIFAR10, self).__init__(data_dir, split, transforms, target_transform)
         if split == "val":

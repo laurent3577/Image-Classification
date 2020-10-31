@@ -45,10 +45,10 @@ class SWA(Hook):
             module.momentum = None
             module.num_batches_tracked *= 0
 
-        for input in self.trainer.train_loader:
-            input = input["img"]
-            input = input.to(self.trainer.device)
-            self.swa_model(input)
+        for input_ in self.trainer.train_loader:
+            input_ = input_["input"]
+            input_ = input_.to(self.trainer.device)
+            self.swa_model(input_)
 
         for bn_module in momenta.keys():
             bn_module.momentum = momenta[bn_module]
