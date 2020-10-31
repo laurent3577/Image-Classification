@@ -56,6 +56,8 @@ class Trainer:
     def _to_device(self, x):
         if isinstance(x, list):
             return [self._to_device(e) for e in x]
+        elif isinstance(x, tuple):
+            return tuple([self._to_device(e) for e in x])
         elif isinstance(x, dict):
             return {k: self._to_device(v) for k, v in x.items()}
         else:
