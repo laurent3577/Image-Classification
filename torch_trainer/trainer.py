@@ -1,6 +1,6 @@
 from tqdm import tqdm
 from torch import optim
-from .hooks.hooks_core import EarlyStop, LRCollect, LossCollect
+from .hooks_core import EarlyStop, LRCollect, LossCollect
 from .optim import build_opt
 import torch
 import os

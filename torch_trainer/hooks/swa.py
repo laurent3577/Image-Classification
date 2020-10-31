@@ -1,4 +1,4 @@
-from . import Hook, apply_last
+from ..hooks_core import Hook, apply_last
 from torch.optim import swa_utils
 from copy import deepcopy
 import torch

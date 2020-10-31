@@ -1,4 +1,4 @@
-from . import Hook
+from ..hooks_core import Hook
 from torchvision import transforms
 from ..models import load_from_path
 from ..data import build_transforms

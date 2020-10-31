@@ -1,4 +1,4 @@
-from .hooks_core import Hook
+from ..hooks_core import Hook
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

@@ -1,7 +1,7 @@
-from .hooks_core import *
 from .swa import SWA
 from .kd import KnowledgeDistillation, MEAL_V2
 from .vat import VAT
+from ..hooks_core import *
 
 
 def build_hooks(config):
