@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 class Trainer:
     def __init__(
-        self, model, train_loader, val_loader, optim, scheduler, loss_fn, hooks, config
+        self, model, train_loader, val_loader, optim, scheduler, loss_fn, hooks, config, device=None,
     ):
         self.model = model
         self.train_loader = train_loader
@@ -20,8 +20,9 @@ class Trainer:
         self._register_hooks(hooks)
         self.step = 0
         self.config = config
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = device if device is not None else torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model = self.model.to(self.device)
+        self.batch_error_warn = False
 
     def _register_hooks(self, hooks):
         self.hooks = hooks
@@ -58,7 +59,13 @@ class Trainer:
         elif isinstance(x, dict):
             return {k: v.to(self.device) for k, v in x.items()}
         else:
-            return x.to(self.device)
+            try:
+                return x.to(self.device)
+            except Exception as e:
+                if not self.batch_error_warn:
+                    self.batch_error_warn = True
+                    print(f"EXCEPTION ON SETTING BATCH TO DEVICE : {e}")
+                return x
 
     def _process_epoch(self):
         if self.in_train:
