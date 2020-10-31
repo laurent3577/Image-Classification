@@ -1,6 +1,6 @@
 from . import Hook
 from torchvision import transforms
-from ..utils import load_from_path
+from ..models import load_from_path
 from ..data import build_transforms
 import torch
 import torch.nn as nn
