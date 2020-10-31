@@ -79,7 +79,7 @@ class Trainer:
                 self.step += 1
             self.batch = batch
             self._hook("batch_begin")
-            self.batch = self._to_device(batch)
+            self.batch = self._to_device(self.batch)
             self.target = self.batch["target"]
             self.model_kwargs = {}
             self._process_batch()
