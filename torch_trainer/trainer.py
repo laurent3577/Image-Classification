@@ -77,10 +77,11 @@ class Trainer:
         for batch in self.pbar:
             if self.in_train:
                 self.step += 1
+            self.batch = batch
+            self._hook("batch_begin")
             self.batch = self._to_device(batch)
             self.target = self.batch["target"]
             self.model_kwargs = {}
-            self._hook("batch_begin")
             self._process_batch()
             self._hook("batch_end")
             if self._hook("stop_epoch"):
