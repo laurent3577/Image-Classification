@@ -1,6 +1,6 @@
 import os
 import torch
-from ..utils import *
+from ..utils import ExpAvgMeter, Plotter, acc
 
 def apply_last(func):
     func.apply_rank = -1
