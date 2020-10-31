@@ -94,7 +94,6 @@ class Logging(Hook):
         if self.trainer.config.PLOT:
             self.plotter = Plotter(
                 log_dir=os.path.join(self.trainer.config.OUTPUT_DIR, "logs"),
-                visdom=self.trainer.config.VISDOM,
             )
             self.trainer.to_plot = []
 

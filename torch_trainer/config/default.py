@@ -36,7 +36,6 @@ _C.DATASET.VAL_SIZE = 0.2
 ### LOGGING
 _C.PLOT = False
 _C.PLOT_EVERY = 20
-_C.VISDOM = True
 _C.PRINT_MODEL = False
 ### SWA
 _C.SWA = CN()

@@ -7,7 +7,7 @@ setup(
     author='Laurent Dillard',
     author_email='laurent.dillard@gmail.com',
     packages=setuptools.find_packages(),
-    install_requires=['torch'],
+    install_requires=['torch','yacs'],
     version='0.1.1',
     license='MIT',
     description='Python package containing handy torch wrappers for DL research',
