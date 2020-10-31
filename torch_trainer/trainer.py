@@ -55,9 +55,9 @@ class Trainer:
 
     def _to_device(self, x):
         if isinstance(x, list):
-            return [e.to(self.device) for e in x]
+            return [self._to_device(e) for e in x]
         elif isinstance(x, dict):
-            return {k: v.to(self.device) for k, v in x.items()}
+            return {k: self._to_device(v) for k, v in x.items()}
         else:
             try:
                 return x.to(self.device)
@@ -89,7 +89,7 @@ class Trainer:
 
     def _process_batch(self):
         self.optim.zero_grad()
-        self.output = self.model(self.batch["input"], **self.model_kwargs)
+        self.output = self.model(*self.batch["input"], **self.model_kwargs)
         self._hook("before_loss")
         self.loss = self.loss_fn(self.output, self.target)
         if self.in_train:

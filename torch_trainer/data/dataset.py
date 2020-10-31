@@ -33,7 +33,7 @@ class BaseImageDataset(Dataset):
         if self.target_transform is not None:
             target = self.target_transform(target)
 
-        sample = {"index": index, "input": img, "target": target}
+        sample = {"index": index, "input": (img,), "target": target}
 
         for add_fn in self.add_to_sample:
             sample = add_fn(sample)
