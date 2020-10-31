@@ -85,7 +85,7 @@ class Validation(Hook):
                 ["Loss", self.trainer.step, loss, "Val Loss", "Step", "Value"]
             )
             self.trainer.to_plot.append(
-                ["Acc", self.trainer.step, accuracy, "Val Acc", "Step", "Value"]
+                ["Acc", self.trainer.step, accuracy*100, "Val Acc", "Step", "Value"]
             )
 
 
