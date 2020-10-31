@@ -5,6 +5,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torch_trainer import *
+from torch_trainer.hooks import build_hooks
 from torch_trainer.data import build_dataset, build_samplers
 from torch_trainer.models import build_model
 import numpy as np
