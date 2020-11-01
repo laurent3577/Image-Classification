@@ -44,7 +44,7 @@ class Trainer:
 
     def _hook(self, method):
         out = False
-        self.hooks.sort(key=lambda hk: getattr(getattr(hk, method),"apply_rank",1),reverse=True)
+        self.hooks.sort(key=lambda hk: getattr(getattr(hk, method),"priority",1),reverse=True)
         for hk in self.hooks:
             try:
                 out = out or getattr(hk, method)()
@@ -80,10 +80,11 @@ class Trainer:
             if self.in_train:
                 self.step += 1
             self.batch = batch
+            self.model_kwargs = {}
             self._hook("batch_begin")
             self.batch = self._to_device(self.batch)
+            self.model_kwargs = self._to_device(self.model_kwargs)
             self.target = self.batch["target"]
-            self.model_kwargs = {}
             self._process_batch()
             self._hook("batch_end")
             if self._hook("stop_epoch"):

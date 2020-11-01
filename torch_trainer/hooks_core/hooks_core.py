@@ -3,7 +3,7 @@ import torch
 from ..utils import ExpAvgMeter, Plotter, acc
 
 def apply_last(func):
-    func.apply_rank = -1
+    func.priority = -1
     return func
 
 class Hook:
