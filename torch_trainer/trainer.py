@@ -5,6 +5,7 @@ from .optim import build_opt
 import torch
 import os
 import numpy as np
+import datetime
 import matplotlib.pyplot as plt
 
 class Trainer:
@@ -23,6 +24,8 @@ class Trainer:
         self.device = device if device is not None else torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model = self.model.to(self.device)
         self.batch_error_warn = False
+        self.save_dir = os.path.join(config.OUTPUT_DIR, f"{datetime.datetime.now():%Y%m%d%H%M}")
+        os.makedirs(self.save_dir, exist_ok=True)
 
     def _register_hooks(self, hooks):
         self.hooks = hooks
@@ -149,12 +152,12 @@ class Trainer:
     def save_ckpt(self, name=None):
         if name is None:
             save_path = os.path.join(
-                self.config.OUTPUT_DIR,
+                self.save_dir,
                 "_".join([self.config.EXP_NAME, "checkpoint.pth"]),
             )
         else:
             save_path = os.path.join(
-                self.config.OUTPUT_DIR, "_".join([self.config.EXP_NAME, name])
+                self.save_dir, "_".join([self.config.EXP_NAME, name])
             )
         torch.save({"cfg": self.config, "params": self.model.state_dict()}, save_path)
 

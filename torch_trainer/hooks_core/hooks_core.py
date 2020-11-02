@@ -93,7 +93,7 @@ class Logging(Hook):
     def train_begin(self):
         if self.trainer.config.PLOT:
             self.plotter = Plotter(
-                log_dir=os.path.join(self.trainer.config.OUTPUT_DIR, "logs"),
+                log_dir=os.path.join(self.trainer.config.LOG_DIR, "logs", self.trainer.save_dir.split("/")[-1]),
             )
             self.trainer.to_plot = []
 
