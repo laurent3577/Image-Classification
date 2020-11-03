@@ -47,7 +47,7 @@ def evaluate(model, config):
             outputs = torch.cat([outputs, model(img).cpu()])
             targets = torch.cat([targets, batch['target'].cpu()])
 
-    accuracy = acc(outputs, targets)
+    accuracy = Accuracy(outputs, targets)
     total = outputs.size(0)
 
     print(
@@ -102,8 +102,9 @@ def main():
 
     loss_fn = nn.CrossEntropyLoss()
     hooks = build_hooks(config)
+    metrics = {"Accuracy":Accuracy}
     trainer = Trainer(
-        model, train_loader, val_loader, opt, scheduler, loss_fn, hooks, config
+        model, train_loader, val_loader, opt, scheduler, loss_fn, hooks, config, metrics=metrics
     )
 
     if config.LR_FINDER.USE:

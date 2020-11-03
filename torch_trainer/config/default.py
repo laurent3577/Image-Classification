@@ -3,6 +3,7 @@ import os
 
 _C = CN()
 _C.OUTPUT_DIR = os.path.join(os.environ.get("HOME"), "Downloads")
+_C.LOG_DIR = "/tmp/"
 _C.EXP_NAME = ""
 _C.RANDOM_SEED = 0
 ### LOSS FUNCTION
@@ -13,6 +14,7 @@ _C.MODEL.NAME = "resnet50"
 _C.MODEL.NUM_CLASSES = 100
 _C.MODEL.PRETRAINED = True
 _C.MODEL.AFF = False
+_C.MODEL.DROPOUT = 0.
 
 ### OPTIMIZER
 _C.OPTIM = CN()

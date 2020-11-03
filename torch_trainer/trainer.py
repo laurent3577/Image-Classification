@@ -5,11 +5,12 @@ from .optim import build_opt
 import torch
 import os
 import numpy as np
+import datetime
 import matplotlib.pyplot as plt
 
 class Trainer:
     def __init__(
-        self, model, train_loader, val_loader, optim, scheduler, loss_fn, hooks, config, device=None,
+        self, model, train_loader, val_loader, optim, scheduler, loss_fn, hooks, config, device=None, metrics={}
     ):
         self.model = model
         self.train_loader = train_loader
@@ -18,11 +19,14 @@ class Trainer:
         self.scheduler = scheduler
         self.loss_fn = loss_fn
         self._register_hooks(hooks)
+        self.metrics = metrics
         self.step = 0
         self.config = config
         self.device = device if device is not None else torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model = self.model.to(self.device)
         self.batch_error_warn = False
+        self.save_dir = os.path.join(config.OUTPUT_DIR, f"{datetime.datetime.now():%Y%m%d%H%M}")
+        os.makedirs(self.save_dir, exist_ok=True)
 
     def _register_hooks(self, hooks):
         self.hooks = hooks
@@ -44,7 +48,7 @@ class Trainer:
 
     def _hook(self, method):
         out = False
-        self.hooks.sort(key=lambda hk: getattr(getattr(hk, method),"apply_rank",1),reverse=True)
+        self.hooks.sort(key=lambda hk: getattr(getattr(hk, method),"priority",1),reverse=True)
         for hk in self.hooks:
             try:
                 out = out or getattr(hk, method)()
@@ -80,10 +84,11 @@ class Trainer:
             if self.in_train:
                 self.step += 1
             self.batch = batch
+            self.model_kwargs = {}
             self._hook("batch_begin")
             self.batch = self._to_device(self.batch)
+            self.model_kwargs = self._to_device(self.model_kwargs)
             self.target = self.batch["target"]
-            self.model_kwargs = {}
             self._process_batch()
             self._hook("batch_end")
             if self._hook("stop_epoch"):
@@ -113,7 +118,6 @@ class Trainer:
                 self.val()
             if not self.scheduler.update_on_step:
                 self.scheduler.step()
-            # self.save_ckpt()
             self.epoch += 1
             if self._hook("stop_train"):
                 self._hook("train_end")
@@ -148,12 +152,12 @@ class Trainer:
     def save_ckpt(self, name=None):
         if name is None:
             save_path = os.path.join(
-                self.config.OUTPUT_DIR,
+                self.save_dir,
                 "_".join([self.config.EXP_NAME, "checkpoint.pth"]),
             )
         else:
             save_path = os.path.join(
-                self.config.OUTPUT_DIR, "_".join([self.config.EXP_NAME, name])
+                self.save_dir, "_".join([self.config.EXP_NAME, name])
             )
         torch.save({"cfg": self.config, "params": self.model.state_dict()}, save_path)
 
