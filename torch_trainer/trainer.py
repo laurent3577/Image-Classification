@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 class Trainer:
     def __init__(
-        self, model, train_loader, val_loader, optim, scheduler, loss_fn, hooks, config, device=None,
+        self, model, train_loader, val_loader, optim, scheduler, loss_fn, hooks, config, device=None, metrics={}
     ):
         self.model = model
         self.train_loader = train_loader
@@ -19,6 +19,7 @@ class Trainer:
         self.scheduler = scheduler
         self.loss_fn = loss_fn
         self._register_hooks(hooks)
+        self.metrics = metrics
         self.step = 0
         self.config = config
         self.device = device if device is not None else torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

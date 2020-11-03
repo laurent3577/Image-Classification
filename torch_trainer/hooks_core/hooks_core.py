@@ -1,6 +1,6 @@
 import os
 import torch
-from ..utils import ExpAvgMeter, Plotter, acc
+from ..utils import ExpAvgMeter, Plotter, Accuracy
 
 def apply_last(func):
     func.priority = -1
@@ -69,7 +69,7 @@ class Validation(Hook):
             self.total += self.trainer.output.size(0)
 
     def val_end(self):
-        accuracy = acc(self.outputs, self.targets)
+        accuracy = self.trainer.metrics["Accuracy"](self.outputs, self.targets)
         loss = self.loss / self.nb_batch
         if accuracy > self.best_acc:
             self.best_acc = accuracy
@@ -231,6 +231,6 @@ class AccCollect(Collect):
         self.meter = ExpAvgMeter(0.98)
 
     def _collect(self):
-        accuracy = acc(self.trainer.output, self.trainer.target)
+        accuracy = self.trainer.metrics["Accuracy"](self.trainer.output, self.trainer.target)
         self.meter.update(accuracy * 100)
         return "Acc_{}".format(self.collect_type), self.meter.value
