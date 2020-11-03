@@ -63,7 +63,7 @@ class Validation(Hook):
 
     def batch_end(self):
         if not self.trainer.in_train:
-            self.loss += self.trainer.loss
+            self.loss += self.trainer.loss.item()
             self.outputs = torch.cat([self.outputs, self.trainer.output.cpu()])
             self.targets = torch.cat([self.targets, self.trainer.target.cpu()])
             self.total += self.trainer.output.size(0)
